@@ -73,6 +73,28 @@ class Router {
                     $action = $segment; // add|addAjax|update|remove|clear
                     $params = [];
                 }
+            } elseif (($urlParts[0] ?? '') === 'orders') {
+                // Orders routes:
+                // - GET  /orders             -> OrderController::index
+                // - GET  /orders/{id}        -> OrderController::show($id)
+                // - GET  /orders/checkout    -> OrderController::checkoutForm
+                // - POST /orders/checkout    -> OrderController::checkout
+                $controllerName = 'OrderController';
+                $segment = $urlParts[1] ?? '';
+
+                if ($segment === '' || $segment === null) {
+                    $action = 'index';
+                    $params = [];
+                } elseif ($segment === 'checkout') {
+                    $action = ($method === 'POST') ? 'checkout' : 'checkoutForm';
+                    $params = [];
+                } elseif (ctype_digit((string)$segment)) {
+                    $action = 'show';
+                    $params = [(int)$segment];
+                } else {
+                    self::error404();
+                    return;
+                }
             } else {
                 // Controller
                 $controllerName = ucfirst($urlParts[0]) . 'Controller';
