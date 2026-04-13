@@ -121,6 +121,9 @@ $cart_count = (int)($cart_count ?? 0);
                     <li class="nav-item">
                         <a class="nav-link" href="<?= BASE_URL ?>/products?gender=female">Mắt Kính Nữ</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= BASE_URL ?>/consultations">Hỗ trợ</a>
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <form class="d-none d-lg-flex position-relative me-2" action="<?= BASE_URL ?>/products" method="GET">

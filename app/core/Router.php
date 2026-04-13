@@ -95,6 +95,27 @@ class Router {
                     self::error404();
                     return;
                 }
+            } elseif (($urlParts[0] ?? '') === 'consultations') {
+                // Consultations routes:
+                // - GET  /consultations        -> ConsultationController::index
+                // - POST /consultations/send   -> ConsultationController::send
+                $controllerName = 'ConsultationController';
+                $segment = $urlParts[1] ?? '';
+
+                if ($segment === '' || $segment === null) {
+                    $action = 'index';
+                    $params = [];
+                } elseif ($segment === 'send') {
+                    if ($method !== 'POST') {
+                        self::error404();
+                        return;
+                    }
+                    $action = 'send';
+                    $params = [];
+                } else {
+                    self::error404();
+                    return;
+                }
             } else {
                 // Controller
                 $controllerName = ucfirst($urlParts[0]) . 'Controller';
