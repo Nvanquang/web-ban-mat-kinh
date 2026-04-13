@@ -38,7 +38,19 @@ class Session {
      * Hủy toàn bộ session
      */
     public static function destroy() {
-        session_unset();
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
         session_destroy();
     }
 
@@ -67,9 +79,56 @@ class Session {
     }
 
     /**
+     * Lấy thông tin user đang đăng nhập
+     */
+    public static function getUser(): array|null {
+        return $_SESSION['user'] ?? null;
+    }
+
+    /**
+     * Set user vào session (chỉ lưu field cần thiết)
+     */
+    public static function setUser(array $customer): void {
+        $_SESSION['user'] = [
+            'id'        => (int)($customer['id'] ?? 0),
+            'username'  => (string)($customer['username'] ?? ''),
+            'full_name' => (string)($customer['full_name'] ?? ''),
+            'role'      => (string)($customer['role'] ?? 'customer'),
+            'status'    => (string)($customer['status'] ?? 'active'),
+        ];
+    }
+
+    /**
      * Kiểm tra vai trò admin
      */
     public static function isAdmin() {
         return self::isLoggedIn() && ($_SESSION['user']['role'] ?? '') === 'admin';
+    }
+
+    /**
+     * Old input (PRG) - lưu tạm 1 lần để restore form
+     */
+    public static function setOldInput(array $data): void {
+        $_SESSION['old_input'] = $data;
+    }
+
+    public static function getOldInput(): array {
+        $data = $_SESSION['old_input'] ?? [];
+        unset($_SESSION['old_input']);
+        return is_array($data) ? $data : [];
+    }
+
+    /**
+     * CSRF token
+     */
+    public static function getCsrfToken(): string {
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return (string)$_SESSION['csrf_token'];
+    }
+
+    public static function verifyCsrfToken(string $token): bool {
+        return hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$token);
     }
 }

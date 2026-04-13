@@ -1,3 +1,5 @@
+<?php require_once APPROOT . '/app/views/partials/header.php'; ?>
+
 <div class="container mt-5">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -43,3 +45,5 @@
         </div>
     </div>
 </div>
+
+<?php require_once APPROOT . '/app/views/partials/footer.php'; ?>

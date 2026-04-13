@@ -1,3 +1,5 @@
+<?php require_once APPROOT . '/app/views/layouts/header.php'; ?>
+
 <!-- Hero Section -->
 <section class="hero-section text-center text-md-start">
     <div class="container hero-content">
@@ -97,4 +99,6 @@
 </section>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<?php require_once APPROOT . '/app/views/layouts/footer.php'; ?>
 

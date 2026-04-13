@@ -3,23 +3,29 @@
 
 abstract class Controller {
     /**
-     * Render view với dữ liệu và layout
+     * Render view với dữ liệu.
+     * Project dùng partial header/footer tuỳ trang; layout là tuỳ chọn.
      */
-    protected function render(string $view, array $data = [], string $layout = 'main'): void {
+    protected function render(string $view, array $data = [], string $layout = ''): void {
         // Extract dữ liệu thành biến PHP
         extract($data);
 
-        // Bắt đầu capture output buffer cho nội dung view
-        ob_start();
         $viewFile = APPROOT . '/app/views/' . $view . '.php';
         
         if (file_exists($viewFile)) {
+            // Nếu không dùng layout thì include view trực tiếp (view tự include header/footer nếu cần)
+            if ($layout === '') {
+                require_once $viewFile;
+                return;
+            }
+
+            // Dùng layout (tương thích ngược) - capture nội dung view
+            ob_start();
             require_once $viewFile;
+            $content = ob_get_clean();
         } else {
             die("View $view không tồn tại.");
         }
-        
-        $content = ob_get_clean();
 
         // Include layout và đẩy nội dung vào
         $layoutFile = APPROOT . '/app/views/layouts/' . $layout . '.php';

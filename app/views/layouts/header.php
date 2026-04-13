@@ -187,3 +187,12 @@ if (is_array($cart)) {
             </div>
         </div>
     </nav>
+
+    <?php $flash = Session::flash(); if ($flash): ?>
+        <div class="container mt-3">
+            <div class="alert alert-<?= ($flash['type'] ?? '') === 'error' ? 'danger' : htmlspecialchars((string)($flash['type'] ?? 'info'), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?> alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars((string)($flash['message'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    <?php endif; ?>

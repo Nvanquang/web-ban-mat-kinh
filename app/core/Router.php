@@ -5,6 +5,7 @@ class Router {
     public static function dispatch() {
         // Lấy URL từ request
         $url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         
         // Mặc định là HomeController@index
         if ($url == '') {
@@ -14,16 +15,36 @@ class Router {
         } else {
             $urlParts = explode('/', $url);
             
-            // Controller
-            $controllerName = ucfirst($urlParts[0]) . 'Controller';
-            unset($urlParts[0]);
+            // Special routes for Auth module (method-aware)
+            if (($urlParts[0] ?? '') === 'auth') {
+                $controllerName = 'AuthController';
+                $segment = $urlParts[1] ?? '';
 
-            // Action
-            $action = isset($urlParts[1]) ? $urlParts[1] : 'index';
-            unset($urlParts[1]);
+                if ($segment === 'login') {
+                    $action = ($method === 'POST') ? 'login' : 'loginForm';
+                    $params = [];
+                } elseif ($segment === 'register') {
+                    $action = ($method === 'POST') ? 'register' : 'registerForm';
+                    $params = [];
+                } elseif ($segment === 'logout') {
+                    $action = 'logout';
+                    $params = [];
+                } else {
+                    self::error404();
+                    return;
+                }
+            } else {
+                // Controller
+                $controllerName = ucfirst($urlParts[0]) . 'Controller';
+                unset($urlParts[0]);
 
-            // Params
-            $params = array_values($urlParts);
+                // Action
+                $action = isset($urlParts[1]) ? $urlParts[1] : 'index';
+                unset($urlParts[1]);
+
+                // Params
+                $params = array_values($urlParts);
+            }
         }
 
         // Kiểm tra controller tồn tại

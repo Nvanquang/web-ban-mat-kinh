@@ -1,3 +1,5 @@
+<?php require_once APPROOT . '/app/views/partials/header.php'; ?>
+
 <div class="container mt-4">
     <div class="row align-items-center mb-4">
         <div class="col-md-6">
@@ -34,3 +36,5 @@
         <?php endif; ?>
     </div>
 </div>
+
+<?php require_once APPROOT . '/app/views/partials/footer.php'; ?>
