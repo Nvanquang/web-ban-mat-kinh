@@ -52,6 +52,27 @@ class Router {
                     unset($urlParts[0], $urlParts[1]);
                     $params = array_values($urlParts);
                 }
+            } elseif (($urlParts[0] ?? '') === 'cart') {
+                // Cart routes:
+                // - GET  /cart         -> CartController::index
+                // - POST /cart/add     -> CartController::add
+                // - POST /cart/update  -> CartController::update
+                // - POST /cart/remove  -> CartController::remove
+                // - POST /cart/clear   -> CartController::clear
+                $controllerName = 'CartController';
+                $segment = $urlParts[1] ?? '';
+
+                if ($segment === '' || $segment === null) {
+                    $action = 'index';
+                    $params = [];
+                } else {
+                    if ($method !== 'POST') {
+                        self::error404();
+                        return;
+                    }
+                    $action = $segment; // add|addAjax|update|remove|clear
+                    $params = [];
+                }
             } else {
                 // Controller
                 $controllerName = ucfirst($urlParts[0]) . 'Controller';

@@ -7,6 +7,17 @@ abstract class Controller {
      * Project dùng partial header/footer tuỳ trang; layout là tuỳ chọn.
      */
     protected function render(string $view, array $data = [], string $layout = ''): void {
+        // Data chung cho mọi view
+        $data['currentUser'] = Session::getUser();
+        $data['title'] = $data['title'] ?? APP_NAME;
+
+        // Cart badge count (DB-backed cart)
+        $data['cart_count'] = $data['cart_count'] ?? 0;
+        if (Session::isLoggedIn()) {
+            $cartItemModel = new CartItemModel();
+            $data['cart_count'] = $cartItemModel->countQuantity((int)Session::getUser()['id']);
+        }
+
         // Extract dữ liệu thành biến PHP
         extract($data);
 

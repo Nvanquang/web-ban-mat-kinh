@@ -101,7 +101,7 @@
                                 <?= number_format((float)$p['price'], 0, ',', '.') ?>₫
                             </p>
 
-                            <form method="POST" action="<?= BASE_URL ?>/cart/add" class="mt-auto">
+                            <form method="POST" action="<?= BASE_URL ?>/cart/add" data-ajax-cart="1" data-ajax-action="<?= BASE_URL ?>/cart/addAjax" class="mt-auto">
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Session::getCsrfToken(), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
                                 <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
                                 <input type="hidden" name="quantity" value="1">

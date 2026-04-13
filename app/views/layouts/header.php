@@ -1,13 +1,6 @@
 <?php
 Session::init();
-
-$cart_count = 0;
-$cart = Session::get('cart', []);
-if (is_array($cart)) {
-    foreach ($cart as $item) {
-        $cart_count += isset($item['qty']) ? intval($item['qty']) : 1;
-    }
-}
+$cart_count = (int)($cart_count ?? 0);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -175,11 +168,12 @@ if (is_array($cart)) {
                     <?php if (Session::isLoggedIn()): ?>
                         <a href="<?= BASE_URL ?>/cart" class="nav-icon-btn text-decoration-none fs-4 position-relative border-start ps-3 ms-1">
                             <i class="bi bi-handbag"></i>
-                            <?php if ($cart_count > 0): ?>
-                                <span class="position-absolute badge rounded-pill bg-danger cart-badge shadow-sm">
-                                    <?= $cart_count ?>
-                                </span>
-                            <?php endif; ?>
+                            <span
+                                id="cartBadge"
+                                class="position-absolute badge rounded-pill bg-danger cart-badge shadow-sm <?= $cart_count > 0 ? '' : 'd-none' ?>"
+                            >
+                                <?= $cart_count ?>
+                            </span>
                         </a>
                     <?php endif; ?>
 
@@ -190,7 +184,7 @@ if (is_array($cart)) {
 
     <?php $flash = Session::flash(); if ($flash): ?>
         <div class="container mt-3">
-            <div class="alert alert-<?= ($flash['type'] ?? '') === 'error' ? 'danger' : htmlspecialchars((string)($flash['type'] ?? 'info'), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?> alert-dismissible fade show" role="alert">
+            <div class="alert js-auto-dismiss alert-<?= ($flash['type'] ?? '') === 'error' ? 'danger' : htmlspecialchars((string)($flash['type'] ?? 'info'), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?> alert-dismissible fade show" role="alert">
                 <?= htmlspecialchars((string)($flash['message'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>

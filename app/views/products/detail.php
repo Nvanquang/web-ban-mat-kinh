@@ -51,7 +51,7 @@
             <p class="text-muted mb-4"><?= nl2br(htmlspecialchars($product['description'])) ?></p>
 
             <div class="d-flex gap-3">
-                <form action="<?= BASE_URL ?>/cart/add" method="POST">
+                <form action="<?= BASE_URL ?>/cart/add" method="POST" data-ajax-cart="1" data-ajax-action="<?= BASE_URL ?>/cart/addAjax">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Session::getCsrfToken(), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
                     <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                     <div class="mb-3" style="width: 220px;">

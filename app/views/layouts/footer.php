@@ -67,6 +67,134 @@
 <?php if (file_exists('assets/js/main.js')): ?>
     <script src="assets/js/main.js"></script>
 <?php endif; ?>
+<script>
+    // Auto hide flash alerts after a short delay (SSR friendly, no AJAX)
+    window.addEventListener('load', function () {
+        const alerts = document.querySelectorAll('.alert.js-auto-dismiss');
+        if (!alerts.length) return;
+        setTimeout(function () {
+            alerts.forEach(function (el) {
+                try {
+                    const instance = bootstrap.Alert.getOrCreateInstance(el);
+                    instance.close();
+                } catch (e) {
+                    el.remove();
+                }
+            });
+        }, 2500);
+    });
+</script>
+<script>
+    // AJAX Add-to-cart (no reload). Progressive enhancement: forms still work without JS.
+    window.addEventListener('load', function () {
+        const forms = document.querySelectorAll('form[data-ajax-cart="1"]');
+        if (!forms.length) return;
+
+        const showToast = function (message, type) {
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 start-50 translate-middle-x mt-3 px-3 py-2 rounded-3 shadow text-white';
+            toast.style.zIndex = '2000';
+            toast.style.background = type === 'error' ? '#ef4444' : '#22c55e';
+            toast.textContent = message || '';
+            document.body.appendChild(toast);
+            setTimeout(function () { toast.remove(); }, 2000);
+        };
+
+        const setBadge = function (count) {
+            const el = document.getElementById('cartBadge');
+            if (!el) return;
+            const c = parseInt(count || '0', 10);
+            if (c > 0) {
+                el.textContent = String(c);
+                el.classList.remove('d-none');
+            } else {
+                el.textContent = '0';
+                el.classList.add('d-none');
+            }
+        };
+
+        const formatVnd = function (n) {
+            const num = Number(n || 0);
+            try { return num.toLocaleString('vi-VN'); } catch (e) { return String(Math.round(num)); }
+        };
+
+        forms.forEach(function (form) {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                try {
+                    const fd = new FormData(form);
+                    const res = await fetch(form.getAttribute('data-ajax-action') || form.action, {
+                        method: 'POST',
+                        body: fd,
+                        credentials: 'same-origin'
+                    });
+                    const data = await res.json();
+                    if (!data || data.success !== true) {
+                        showToast((data && data.message) ? data.message : 'Add to cart failed.', 'error');
+                        return;
+                    }
+                    setBadge(data.cart_count || 0);
+                    showToast(data.message || 'Added to cart!', 'success');
+
+                    // Cart page: remove mode updates UI without reload
+                    if (form.getAttribute('data-ajax-cart-mode') === 'remove') {
+                        const fd = new FormData(form);
+                        const pid = fd.get('product_id');
+                        if (pid) {
+                            const row = document.getElementById('cartRow_' + pid);
+                            if (row) row.remove();
+                        }
+
+                        const itemCountEl = document.getElementById('cartItemCount');
+                        if (itemCountEl && typeof data.cart_count !== 'undefined') itemCountEl.textContent = String(data.cart_count);
+
+                        const subtotalEl = document.getElementById('cartSubtotal');
+                        if (subtotalEl && typeof data.subtotal !== 'undefined') subtotalEl.textContent = formatVnd(data.subtotal);
+
+                        const shippingEl = document.getElementById('cartShipping');
+                        if (shippingEl && typeof data.shipping !== 'undefined') {
+                            shippingEl.textContent = (Number(data.shipping) <= 0) ? 'Free' : (formatVnd(data.shipping) + ' ₫');
+                        }
+
+                        const totalEl = document.getElementById('cartTotal');
+                        if (totalEl && typeof data.total !== 'undefined') totalEl.textContent = formatVnd(data.total);
+
+                        if (data.empty === true) {
+                            // easiest: reload cart to show empty state layout
+                            window.location.href = '<?= BASE_URL ?>/cart';
+                        }
+                    }
+
+                    // Cart page: update qty mode updates totals without reload
+                    if (form.getAttribute('data-ajax-cart-mode') === 'update') {
+                        const pid = data.product_id;
+                        if (pid) {
+                            const rowTotalEl = document.getElementById('cartRowTotal_' + pid);
+                            if (rowTotalEl && typeof data.row_total !== 'undefined') rowTotalEl.textContent = formatVnd(data.row_total);
+                        }
+
+                        const itemCountEl = document.getElementById('cartItemCount');
+                        if (itemCountEl && typeof data.cart_count !== 'undefined') itemCountEl.textContent = String(data.cart_count);
+
+                        const subtotalEl = document.getElementById('cartSubtotal');
+                        if (subtotalEl && typeof data.subtotal !== 'undefined') subtotalEl.textContent = formatVnd(data.subtotal);
+
+                        const shippingEl = document.getElementById('cartShipping');
+                        if (shippingEl && typeof data.shipping !== 'undefined') {
+                            shippingEl.textContent = (Number(data.shipping) <= 0) ? 'Free' : (formatVnd(data.shipping) + ' ₫');
+                        }
+
+                        const totalEl = document.getElementById('cartTotal');
+                        if (totalEl && typeof data.total !== 'undefined') totalEl.textContent = formatVnd(data.total);
+                    }
+                } catch (err) {
+                    showToast('Add to cart failed.', 'error');
+                }
+            });
+        });
+    });
+</script>
 </body>
 
 </html>

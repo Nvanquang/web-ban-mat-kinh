@@ -103,12 +103,7 @@ $categories = $categories ?? [];
                 <div class="row g-4">
                     <?php foreach ($products as $p): ?>
                         <?php
-                        $oldPrice = $p['old_price'] ?? null;
-                        $price = (float)($p['price'] ?? 0);
-                        $salePct = null;
-                        if ($oldPrice !== null && (float)$oldPrice > 0 && (float)$oldPrice > $price) {
-                            $salePct = (int)round((1 - ($price / (float)$oldPrice)) * 100);
-                        }
+                        $isHot = !empty($p['is_custom']);
                         $rawImg = (string)($p['image_url'] ?? '');
                         if ($rawImg === '') {
                             $imgSrc = BASE_URL . '/public/uploads/no-image.jpg';
@@ -120,43 +115,37 @@ $categories = $categories ?? [];
                             $imgSrc = BASE_URL . '/public/uploads/' . ltrim($rawImg, '/');
                         }
                         ?>
-                        <div class="col-12 col-sm-6 col-lg-4">
-                            <div class="card h-100 shadow-sm product-card">
-                                <a href="<?= BASE_URL ?>/products/<?= (int)$p['id'] ?>" class="product-img-wrapper">
-                                    <div class="position-relative">
-                                        <img
-                                            src="<?= htmlspecialchars($imgSrc, ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
-                                            class="product-img"
-                                            alt="<?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
-                                        >
-                                        <?php if ($salePct !== null): ?>
-                                            <span class="badge position-absolute top-0 start-0 m-2 text-white" style="background:#f59e0b;">
-                                                SALE <?= $salePct ?>%
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-                                </a>
-                                <div class="card-body">
-                                    <div class="product-title text-truncate mb-1" title="<?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
-                                        <?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-2 mb-3">
-                                        <div class="product-price">
-                                            <?= number_format((float)$p['price'], 0, ',', '.') ?> ₫
-                                        </div>
-                                        <?php if (!empty($p['old_price'])): ?>
-                                            <div class="text-muted text-decoration-line-through small">
-                                                <?= number_format((float)$p['old_price'], 0, ',', '.') ?> ₫
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card h-100 position-relative shadow-sm product-card">
+                                <span class="badge badge-custom shadow-sm <?= $isHot ? 'bg-danger' : 'bg-success' ?>">
+                                    <?php if ($isHot): ?>
+                                        <i class="bi bi-fire"></i> HOT
+                                    <?php else: ?>
+                                        MỚI
+                                    <?php endif; ?>
+                                </span>
 
-                                    <form method="POST" action="<?= BASE_URL ?>/cart/add">
+                                <a href="<?= BASE_URL ?>/products/<?= (int)$p['id'] ?>" class="product-img-wrapper">
+                                    <img
+                                        src="<?= htmlspecialchars($imgSrc, ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
+                                        class="product-img"
+                                        alt="<?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
+                                    >
+                                </a>
+                                <div class="card-body text-center d-flex flex-column p-4">
+                                    <h5 class="product-title mb-2 text-truncate" title="<?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
+                                        <?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
+                                    </h5>
+                                    <p class="product-price mt-auto mb-3">
+                                        <?= number_format((float)$p['price'], 0, ',', '.') ?>₫
+                                    </p>
+
+                                    <form method="POST" action="<?= BASE_URL ?>/cart/add" data-ajax-cart="1" data-ajax-action="<?= BASE_URL ?>/cart/addAjax" class="mt-auto">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Session::getCsrfToken(), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
                                         <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
                                         <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn text-white w-100" style="background:#0ea5e9;">
-                                            Add Cart
+                                        <button type="submit" class="btn btn-outline-primary w-100 btn-custom">
+                                            <i class="bi bi-cart-plus"></i> Thêm Giỏ Hàng
                                         </button>
                                     </form>
                                 </div>

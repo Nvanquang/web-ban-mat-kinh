@@ -5,6 +5,26 @@ class ProductModel extends Model {
     protected string $table = 'products';
 
     /**
+     * Tìm sản phẩm theo ID (dùng cho Cart - read-only)
+     * Trả về false nếu không tồn tại hoặc status=0
+     */
+    public function findById(int $id): array|false {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description
+                FROM {$this->table}
+                WHERE id = ? AND status = 1
+                LIMIT 1
+            ");
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log('ProductModel::findById error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Lấy danh sách sản phẩm nổi bật cho trang chủ
      */
     public function getFeaturedProducts(int $limit = 4) {
