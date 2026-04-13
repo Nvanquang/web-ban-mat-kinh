@@ -33,6 +33,25 @@ class Router {
                     self::error404();
                     return;
                 }
+            } elseif (($urlParts[0] ?? '') === 'products') {
+                // Products routes:
+                // - GET /products           -> ProductController::index
+                // - GET /products/{id}      -> ProductController::show($id)
+                $controllerName = 'ProductController';
+                $segment = $urlParts[1] ?? '';
+
+                if ($segment === '' || $segment === null) {
+                    $action = 'index';
+                    $params = [];
+                } elseif (ctype_digit((string)$segment)) {
+                    $action = 'show';
+                    $params = [(int)$segment];
+                } else {
+                    // Backward compatibility: /products/show/{id}
+                    $action = $segment;
+                    unset($urlParts[0], $urlParts[1]);
+                    $params = array_values($urlParts);
+                }
             } else {
                 // Controller
                 $controllerName = ucfirst($urlParts[0]) . 'Controller';

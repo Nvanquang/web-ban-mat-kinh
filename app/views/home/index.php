@@ -51,26 +51,64 @@
 </section>
 
 <!-- Featured Products -->
-<section class="py-5">
+<section class="py-5 bg-white rounded-top-5 mt-4">
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-bold">Sản Phẩm Nổi Bật</h2>
+                <h6 class="text-primary fw-bold text-uppercase mb-1">Bán Chạy Nhất</h6>
+                <h2 class="fw-bold mb-0" style="color: #2c3e50;">Sản Phẩm Nổi Bật</h2>
             </div>
-            <a href="<?= BASE_URL ?>/products" class="text-decoration-none">Xem tất cả &rarr;</a>
+            <a href="<?= BASE_URL ?>/products" class="text-decoration-none fw-semibold">Xem tất cả &rarr;</a>
         </div>
         
-        <div class="row g-4">
+        <div class="row g-4" id="featured-products">
             <?php foreach ($products as $p): ?>
+                <?php
+                $isHot = !empty($p['is_custom']);
+                $rawImg = (string)($p['image_url'] ?? '');
+                if ($rawImg === '') {
+                    $imgSrc = BASE_URL . '/public/uploads/no-image.jpg';
+                } elseif (preg_match('~^https?://~i', $rawImg)) {
+                    $imgSrc = $rawImg;
+                } elseif (str_starts_with($rawImg, 'public/uploads/')) {
+                    $imgSrc = BASE_URL . '/' . $rawImg;
+                } else {
+                    $imgSrc = BASE_URL . '/public/uploads/' . ltrim($rawImg, '/');
+                }
+                ?>
                 <div class="col-sm-6 col-md-4 col-lg-3">
-                    <div class="card h-100 shadow-sm">
-                        <a href="<?= BASE_URL ?>/products/show/<?= $p['id'] ?>">
-                            <img src="<?= BASE_URL ?>/public/uploads/<?= $p['image_url'] ?: 'no-image.jpg' ?>" class="card-img-top" alt="<?= htmlspecialchars($p['product_name']) ?>">
+                    <div class="card h-100 position-relative shadow-sm product-card">
+                        <span class="badge badge-custom shadow-sm <?= $isHot ? 'bg-danger' : 'bg-success' ?>">
+                            <?php if ($isHot): ?>
+                                <i class="bi bi-fire"></i> HOT
+                            <?php else: ?>
+                                MỚI
+                            <?php endif; ?>
+                        </span>
+
+                        <a href="<?= BASE_URL ?>/products/<?= (int)$p['id'] ?>" class="product-img-wrapper">
+                            <img
+                                src="<?= htmlspecialchars($imgSrc, ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
+                                class="product-img"
+                                alt="<?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
+                            >
                         </a>
-                        <div class="card-body text-center">
-                            <h5 class="card-title text-truncate"><?= htmlspecialchars($p['product_name']) ?></h5>
-                            <p class="text-danger fw-bold"><?= number_format($p['price'], 0, ',', '.') ?>đ</p>
-                            <a href="<?= BASE_URL ?>/products/show/<?= $p['id'] ?>" class="btn btn-outline-primary w-100">Chi tiết</a>
+                        <div class="card-body text-center d-flex flex-column p-4">
+                            <h5 class="product-title mb-2 text-truncate" title="<?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
+                                <?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
+                            </h5>
+                            <p class="product-price mt-auto mb-3">
+                                <?= number_format((float)$p['price'], 0, ',', '.') ?>₫
+                            </p>
+
+                            <form method="POST" action="<?= BASE_URL ?>/cart/add" class="mt-auto">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Session::getCsrfToken(), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
+                                <input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-outline-primary w-100 btn-custom">
+                                    <i class="bi bi-cart-plus"></i> Thêm Giỏ Hàng
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -78,6 +116,58 @@
         </div>
     </div>
 </section>
+
+<style>
+    .badge-custom{
+        position:absolute;
+        top:12px;
+        left:12px;
+        z-index:2;
+        border-radius:999px;
+        padding:.45rem .6rem;
+        font-weight:700;
+        font-size:.75rem;
+    }
+
+    .product-card{
+        border: 1px solid rgba(15, 23, 42, .06);
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: all .25s ease;
+        background: #fff;
+    }
+    .product-card:hover{
+        transform: translateY(-4px);
+        box-shadow: 0 .75rem 1.5rem rgba(15, 23, 42, .10) !important;
+    }
+
+    .product-img-wrapper{
+        display:block;
+        overflow:hidden;
+        background:#f8fafc;
+    }
+    .product-img{
+        width:100%;
+        height:auto;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        transition: transform .35s ease;
+    }
+    .product-card:hover .product-img{
+        transform: scale(1.06);
+    }
+
+    .product-title{
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    .product-price{
+        font-weight: 800;
+        color:#0ea5e9;
+        font-size: 1.05rem;
+    }
+    .btn-custom{ border-radius: .75rem; }
+</style>
 
 <!-- Newsletter / Call To Action -->
 <section class="py-5 mb-5 mt-4">
