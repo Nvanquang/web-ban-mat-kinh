@@ -1,0 +1,296 @@
+/* ==========================================================================
+   Eyeglass Online - Premium CSS Styling
+   ========================================================================== */
+
+/* --- CSS Variables & Theme Setup --- */
+:root {
+    /* Colors */
+    --primary-color: #0ea5e9; /* Sky Blue - creates trust and freshness */
+    --primary-dark: #0284c7;
+    --secondary-color: #f59e0b; /* Amber for highlights */
+    --dark-bg: #0f172a; /* Premium Slate 900 */
+    --light-bg: #f8fafc; /* Crisp Slate 50 */
+    --text-main: #334155; /* Slate 700 */
+    --text-muted: #64748b; /* Slate 500 */
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+
+    /* Typography */
+    --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+    
+    /* Layout & Shadows */
+    --border-radius-sm: 8px;
+    --border-radius-md: 16px;
+    --border-radius-lg: 24px;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* --- Global Reset & Base Styles --- */
+body {
+    font-family: var(--font-primary);
+    color: var(--text-main);
+    background-color: var(--light-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    color: var(--dark-bg);
+    font-weight: 700;
+}
+
+a {
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Override Bootstrap Primary Color globally */
+.text-primary { color: var(--primary-color) !important; }
+.bg-primary { background-color: var(--primary-color) !important; }
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    color: var(--white) !important;
+}
+
+/* --- Buttons --- */
+.btn-custom {
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-lg.btn-custom {
+    padding: 0.8rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    padding: 6rem 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    right: -5%;
+    width: 60%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(14,165,233,0.1) 0%, rgba(255,255,255,0) 70%);
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-title {
+    font-weight: 800;
+    font-size: clamp(2.5rem, 5vw, 4.2rem);
+    color: var(--dark-bg);
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+}
+
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    max-width: 520px;
+    margin-bottom: 2.2rem;
+    line-height: 1.7;
+}
+
+/* --- Features Section --- */
+.feature-box {
+    background: var(--white);
+    padding: 2.5rem 2rem;
+    border-radius: var(--border-radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.4s ease;
+    border: 1px solid rgba(0,0,0,0.02);
+    height: 100%;
+}
+
+.feature-box:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(14,165,233,0.2);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    transition: transform 0.4s ease;
+}
+
+.feature-box:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.feature-box h5 {
+    font-weight: 700;
+    color: var(--dark-bg);
+    margin-bottom: 1rem;
+}
+
+/* --- Product Cards --- */
+.product-card {
+    border: none;
+    border-radius: var(--border-radius-md);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+}
+
+.product-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-5px);
+}
+
+.product-img-wrapper {
+    position: relative;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    background-color: #f1f5f9; /* Soft background to highlight glasses */
+    overflow: hidden;
+    display: block;
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+.product-img-wrapper img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+    filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+}
+
+.product-card:hover .product-img-wrapper img {
+    transform: translate(-50%, -50%) scale(1.08); /* Gentle zoom on hover */
+}
+
+.product-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-bg);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.product-title:hover {
+    color: var(--primary-color);
+}
+
+.product-price {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+}
+
+.badge-custom {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 2;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-radius: var(--border-radius-sm);
+    text-transform: uppercase;
+}
+
+/* --- Newsletter Section --- */
+.bg-dark.text-white {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, #1e293b 100%) !important;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(14, 165, 233, 0.25);
+    border-color: var(--primary-color);
+}
+
+/* --- Miscellaneous Utilities --- */
+.rounded-top-5 {
+    border-top-left-radius: 3rem !important;
+    border-top-right-radius: 3rem !important;
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* --- Custom Scrollbar for modern look --- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* --- Quick Animation for Page Load --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-section, .feature-box, .product-card {
+    animation: fadeIn 0.6s ease-out forwards;
+}
