@@ -18,6 +18,11 @@ class Router
             ''     => ['GET' => 'index'],
             'send' => ['POST' => 'send'],
         ]],
+        'profile'       => ['ProfileController', [
+            ''         => ['GET' => 'index'],
+            'update'   => ['POST' => 'update'],
+            'password' => ['POST' => 'changePassword'],
+        ]],
         'admin'         => [null, null], // Xử lý riêng
     ];
 
@@ -35,6 +40,7 @@ class Router
             'cart'          => self::dispatchCart($parts, $method),
             'orders'        => self::dispatchOrders($parts, $method),
             'consultations' => self::dispatchConsultations($parts, $method),
+            'profile'       => self::dispatchProfile($parts, $method),
             'admin'         => self::dispatchAdmin($parts, $method),
             default         => self::error404(),
         };
@@ -96,6 +102,17 @@ class Router
         self::error404();
     }
 
+    // --------------------------------------------------------------- Profile
+
+    private static function dispatchProfile(array $p, string $m): void
+    {
+        $seg = $p[1] ?? '';
+        if ($seg === '')                          { self::call('ProfileController', 'index'); return; }
+        if ($seg === 'update' && $m === 'POST')   { self::call('ProfileController', 'update'); return; }
+        if ($seg === 'password' && $m === 'POST') { self::call('ProfileController', 'changePassword'); return; }
+        self::error404();
+    }
+
     // ----------------------------------------------------------------- Admin
 
     private static function dispatchAdmin(array $p, string $m): void
@@ -110,6 +127,7 @@ class Router
             'orders'        => 'AdminOrderController',
             'customers'     => 'AdminCustomerController',
             'consultations' => 'AdminConsultationController',
+            'profile'       => 'AdminProfileController',
         ];
 
         if (!isset($adminMap[$seg])) { self::error404(); return; }
@@ -121,6 +139,12 @@ class Router
 
         // Danh sách
         if ($sub === '') { self::call($ctrl, 'index'); return; }
+
+        if ($seg === 'profile') {
+            if ($sub === 'update' && $m === 'POST') { self::call($ctrl, 'update'); return; }
+            if ($sub === 'password' && $m === 'POST') { self::call($ctrl, 'changePassword'); return; }
+            self::error404(); return;
+        }
 
         // /admin/{resource}/create
         if ($sub === 'create' && in_array($seg, ['products'])) {

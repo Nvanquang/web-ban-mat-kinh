@@ -29,6 +29,7 @@
                         <span class="d-none d-md-inline"><?= htmlspecialchars($currentUser['full_name'] ?? 'Admin') ?></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>/admin/profile"><i class="bi bi-person me-2"></i>Hồ sơ cá nhân</a></li>
                         <li><a class="dropdown-item" href="<?= BASE_URL ?>/admin"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
                         <li><a class="dropdown-item" href="<?= BASE_URL ?>/"><i class="bi bi-house-door me-2"></i>Trang chủ</a></li>
                         <li><hr class="dropdown-divider"></li>

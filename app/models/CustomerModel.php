@@ -142,4 +142,30 @@ class CustomerModel extends Model {
             return false;
         }
     }
+
+    public function updateProfile(int $id, array $data): bool {
+        try {
+            $stmt = $this->db->prepare("UPDATE {$this->table} SET full_name = ?, email = ?, phone = ?, address = ? WHERE id = ?");
+            return $stmt->execute([
+                $data['full_name'] ?? null,
+                $data['email'],
+                $data['phone'] ?? null,
+                $data['address'] ?? null,
+                $id
+            ]);
+        } catch (PDOException $e) {
+            error_log('CustomerModel::updateProfile error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updatePassword(int $id, string $hash): bool {
+        try {
+            $stmt = $this->db->prepare("UPDATE {$this->table} SET password = ? WHERE id = ?");
+            return $stmt->execute([$hash, $id]);
+        } catch (PDOException $e) {
+            error_log('CustomerModel::updatePassword error: ' . $e->getMessage());
+            return false;
+        }
+    }
 }

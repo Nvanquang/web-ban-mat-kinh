@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 4. Newsletter Form Highlight
-    const newsletterForm = document.querySelector('form input[type="email"]');
+    const newsletterForm = document.querySelector('.newsletter-form input[type="email"]');
     if (newsletterForm) {
         const formParent = newsletterForm.closest('form');
         formParent.addEventListener('submit', (e) => {
