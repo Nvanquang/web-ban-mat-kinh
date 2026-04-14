@@ -27,6 +27,31 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 4. Auto-login via Cookie
+if (!isset($_SESSION['user']) && isset($_COOKIE['user_id'])) {
+    $userId = (int)$_COOKIE['user_id'];
+    $customerModel = new CustomerModel();
+    $customer = $customerModel->findById($userId);
+    
+    if ($customer && ($customer['status'] ?? 'active') !== 'banned') {
+        // Khôi phục session từ cookie
+        if (class_exists('Session')) {
+            Session::setUser($customer);
+        } else {
+            $_SESSION['user'] = [
+                'id'        => (int)($customer['id'] ?? 0),
+                'username'  => (string)($customer['username'] ?? ''),
+                'full_name' => (string)($customer['full_name'] ?? ''),
+                'role'      => (string)($customer['role'] ?? 'customer'),
+                'status'    => (string)($customer['status'] ?? 'active'),
+            ];
+        }
+    } else {
+        // Cookie không hợp lệ hoặc bị khóa, xóa cookie
+        setcookie('user_id', '', time() - 3600, '/');
+    }
+}
+
 // 4. Register Exception Handler
 set_exception_handler(function (\Throwable $e) {
     if (class_exists('Router')) {

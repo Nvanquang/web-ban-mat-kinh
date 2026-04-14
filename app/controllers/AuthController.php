@@ -54,6 +54,10 @@ class AuthController extends Controller {
 
         session_regenerate_id(true);
         Session::setUser($customer);
+
+        // Lưu Cookie 30 ngày (đơn giản, lưu ID)
+        setcookie('user_id', (string)$customer['id'], time() + (30 * 24 * 60 * 60), '/');
+
         $fullName = trim((string)($customer['full_name'] ?? ''));
         $nameForMsg = $fullName !== '' ? $fullName : (string)($customer['username'] ?? '');
         Session::flash('success', 'Chào mừng bạn trở lại, ' . $nameForMsg . '!');
@@ -152,6 +156,12 @@ class AuthController extends Controller {
 
     public function logout(): void {
         $this->requireAuth();
+        
+        // Xóa Cookie đăng nhập
+        if (isset($_COOKIE['user_id'])) {
+            setcookie('user_id', '', time() - 3600, '/');
+        }
+
         Session::destroy();
         Session::flash('success', 'Bạn đã đăng xuất thành công.');
         $this->redirect('/auth/login');
