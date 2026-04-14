@@ -2,17 +2,17 @@
 <?php $consultations = $consultations ?? []; ?>
 
 <div class="container py-4">
-    <h2 class="fw-bold mb-3">Consultation &amp; Support</h2>
+    <h2 class="fw-bold mb-3">Tư vấn &amp; Hỗ trợ</h2>
 
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <div class="fw-bold mb-2">Ask a Question</div>
+            <div class="fw-bold mb-2">Đặt câu hỏi</div>
 
             <form method="POST" action="<?= BASE_URL ?>/consultations/send">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Session::getCsrfToken(), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
 
                 <div class="mb-2">
-                    <label class="form-label fw-semibold">Your Question <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold">Câu hỏi của bạn <span class="text-danger">*</span></label>
                     <textarea
                         id="questionContent"
                         name="content"
@@ -20,26 +20,26 @@
                         rows="5"
                         maxlength="2000"
                         style="min-height: 120px; resize: vertical;"
-                        placeholder="Type your question about glasses, prescriptions, sizing, or anything else..."
+                        placeholder="Đặt câu hỏi của bạn về kính, đơn hàng, hoặc bất cứ điều gì..."
                         required
                     ></textarea>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="text-muted small"><span id="charCount">0</span> / 2000 characters</div>
-                    <button type="submit" class="btn text-white" style="background:#0ea5e9;">Submit Question</button>
+                    <button type="submit" class="btn text-white" style="background:#0ea5e9;">Gửi câu hỏi</button>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-end mb-2">
-        <div class="fw-bold">My Questions (<?= count($consultations) ?>)</div>
+        <div class="fw-bold">Câu hỏi của tôi (<?= count($consultations) ?>)</div>
     </div>
 
     <?php if (empty($consultations)): ?>
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-5">
-                <div class="text-muted fs-5">You haven't asked any questions yet.</div>
+                <div class="text-muted fs-5">Bạn chưa có câu hỏi nào.</div>
             </div>
         </div>
     <?php else: ?>
@@ -73,7 +73,7 @@
                                 <div><?= nl2br(htmlspecialchars((string)$c['reply'], ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?></div>
                             </div>
                         <?php else: ?>
-                            <div class="text-muted fst-italic">⏳ Awaiting response from our team...</div>
+                            <div class="text-muted fst-italic">⏳ Đang chờ phản hồi từ admin...</div>
                         <?php endif; ?>
                     </div>
                     <hr class="my-0">

@@ -26,15 +26,13 @@ class OrderController extends Controller {
         $model = new OrderModel();
         $order = $model->getOrderWithDetails($id);
         if (!$order) {
-            http_response_code(404);
-            $this->render('errors/404', ['title' => 'Không tìm thấy trang']);
+            Router::error404();
             return;
         }
 
         $customerId = (int)Session::getUser()['id'];
         if ((int)($order['customer_id'] ?? 0) !== $customerId) {
-            http_response_code(403);
-            $this->render('errors/403', ['title' => 'Truy cập bị từ chối']);
+            Router::error403();
             return;
         }
 

@@ -27,5 +27,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 4. Dispatch Request
+// 4. Register Exception Handler
+set_exception_handler(function (\Throwable $e) {
+    if (class_exists('Router')) {
+        Router::error500($e);
+    } else {
+        http_response_code(500);
+        echo "Internal Server Error";
+    }
+});
+
+// 5. Dispatch Request
 Router::dispatch();

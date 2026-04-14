@@ -30,6 +30,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="<?= BASE_URL ?>/admin"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                        <li><a class="dropdown-item" href="<?= BASE_URL ?>/"><i class="bi bi-house-door me-2"></i>Trang chủ</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>/auth/logout">
                             <i class="bi bi-box-arrow-right me-2"></i>Logout

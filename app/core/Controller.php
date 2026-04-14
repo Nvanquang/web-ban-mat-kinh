@@ -73,7 +73,7 @@ abstract class Controller {
      */
     protected function requireAdmin(): void {
         if (!Session::isAdmin()) {
-            $this->redirect('/', 'error', 'Bạn không có quyền truy cập khu vực này.');
+            Router::error403();
         }
     }
 

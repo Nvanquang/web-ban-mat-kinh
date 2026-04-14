@@ -176,10 +176,27 @@ class Router
         call_user_func_array([new $controller(), $action], $params);
     }
 
-    private static function error404(): void
+    public static function error404(): void
     {
         http_response_code(404);
-        echo "<h1>404 - Trang không tìm thấy</h1>";
+        require_once APPROOT . '/app/views/errors/404.php';
+        exit;
+    }
+
+    public static function error403(): void
+    {
+        http_response_code(403);
+        require_once APPROOT . '/app/views/errors/403.php';
+        exit;
+    }
+
+    public static function error500(\Throwable $e = null): void
+    {
+        http_response_code(500);
+        if ($e) {
+            error_log("500 Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+        }
+        require_once APPROOT . '/app/views/errors/500.php';
         exit;
     }
 }

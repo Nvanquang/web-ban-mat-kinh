@@ -3,9 +3,9 @@
 <div class="container py-5">
     <div class="text-center py-5">
         <h1 class="fw-bold mb-2">403</h1>
-        <p class="text-muted mb-4">Access denied.</p>
-        <a class="btn btn-primary" href="<?= BASE_URL ?>/orders">Back to Orders</a>
-        <a class="btn btn-outline-secondary ms-2" href="<?= BASE_URL ?>">Home</a>
+        <p class="text-muted mb-4">Truy cập bị từ chối.</p>
+        <a class="btn btn-primary" href="javascript:history.back();">Quay lại trang trước đó</a>
+        <a class="btn btn-outline-secondary ms-2" href="<?= BASE_URL ?>">Trang chủ</a>
     </div>
 </div>
 
