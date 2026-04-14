@@ -47,7 +47,7 @@ class AdminCustomerController extends Controller {
 
     public function toggleBan(int $id): void {
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-            Session::flash('error', 'Invalid CSRF token.');
+            Session::flash('error', 'Token CSRF không hợp lệ.');
             $this->redirect('/admin/customers');
             return;
         }
@@ -60,23 +60,23 @@ class AdminCustomerController extends Controller {
 
         $currentUser = Session::get('user');
         if ($currentUser && $currentUser['id'] == $id) {
-            Session::flash('error', 'You cannot ban your own account.');
+            Session::flash('error', 'Bạn không thể cấm tài khoản của chính mình.');
             $this->redirect('/admin/customers');
             return;
         }
 
         if ($customer['role'] === 'admin') {
-            Session::flash('error', 'Cannot ban admin accounts.');
+            Session::flash('error', 'Không thể cấm tài khoản quản trị viên.');
             $this->redirect('/admin/customers');
             return;
         }
 
         $newStatus = ($customer['status'] === 'active') ? 'banned' : 'active';
         if ($this->customerModel->updateCustomerStatus($id, $newStatus)) {
-            $action = ($newStatus === 'banned') ? 'banned' : 'unbanned';
-            Session::flash('success', "{$customer['full_name']} has been {$action}.");
+            $action = ($newStatus === 'banned') ? 'đã bị cấm' : 'đã được gỡ cấm';
+            Session::flash('success', "{$customer['full_name']} {$action}.");
         } else {
-            Session::flash('error', 'Operation failed.');
+            Session::flash('error', 'Thao tác thất bại. Vui lòng thử lại.');
         }
 
         $this->redirect('/admin/customers');

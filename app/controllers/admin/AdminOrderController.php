@@ -17,7 +17,7 @@ class AdminOrderController extends Controller {
         $result = $this->orderModel->getAdminList($filters, $page, 10);
 
         $this->render('admin/orders/index', [
-            'title' => 'Orders Management',
+            'title' => 'Quản lý đơn hàng',
             'currentPage' => 'orders',
             'orders' => $result['data'],
             'total' => $result['total'],
@@ -35,7 +35,7 @@ class AdminOrderController extends Controller {
         }
 
         $this->render('admin/orders/detail', [
-            'title' => 'Order Detail',
+            'title' => 'Chi tiết đơn hàng',
             'currentPage' => 'orders',
             'order' => $order
         ], 'admin');
@@ -43,7 +43,7 @@ class AdminOrderController extends Controller {
 
     public function updateStatus(int $id): void {
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-            Session::flash('error', 'Invalid CSRF token.');
+            Session::flash('error', 'Token CSRF không hợp lệ.');
             $this->redirect("/admin/orders/{$id}");
             return;
         }
@@ -58,7 +58,7 @@ class AdminOrderController extends Controller {
         $validStatuses = ['confirmed', 'shipped', 'completed', 'cancelled'];
 
         if (!in_array($newStatus, $validStatuses, true)) {
-            Session::flash('error', 'Invalid status.');
+            Session::flash('error', 'Trạng thái không hợp lệ.');
             $this->redirect("/admin/orders/{$id}");
             return;
         }
@@ -84,22 +84,38 @@ class AdminOrderController extends Controller {
                 break;
             case 'completed':
             case 'cancelled':
-                $isValidTransition = false; // Cannot change from final state
+                $isValidTransition = false; // Không thể thay đổi từ trạng thái cuối
                 break;
         }
 
         if (!$isValidTransition) {
-            Session::flash('error', "Cannot change status from {$currentStatus}.");
+            Session::flash('error', "Không thể chuyển trạng thái từ '{$currentStatus}'.");
             $this->redirect("/admin/orders/{$id}");
             return;
         }
 
         if ($this->orderModel->updateStatus($id, $newStatus)) {
-            Session::flash('success', "Order status updated to {$newStatus}.");
+            $statusName = $this->getStatusName($newStatus); // Tên tiếng Việt đẹp hơn
+            Session::flash('success', "Trạng thái đơn hàng đã được cập nhật thành: {$statusName}.");
         } else {
-            Session::flash('error', 'Operation failed.');
+            Session::flash('error', 'Thao tác thất bại. Vui lòng thử lại.');
         }
 
         $this->redirect("/admin/orders/{$id}");
+    }
+
+    /**
+     * Chuyển trạng thái code sang tên tiếng Việt dễ đọc
+     */
+    private function getStatusName(string $status): string {
+        $names = [
+            'pending'    => 'Chờ xác nhận',
+            'confirmed'  => 'Đã xác nhận',
+            'shipped'    => 'Đang giao hàng',
+            'completed'  => 'Hoàn thành',
+            'cancelled'  => 'Đã hủy'
+        ];
+
+        return $names[$status] ?? ucfirst($status);
     }
 }

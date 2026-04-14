@@ -41,7 +41,7 @@ class CartController extends Controller {
 
     public function add(): void {
         $this->requireAuth();
-        $this->verifyCsrfOr403('/auth/login', 'Please login to add items to cart.');
+        $this->verifyCsrfOr403('/auth/login', 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
 
         $customerId = (int)Session::getUser()['id'];
         $productId = (int)($_POST['product_id'] ?? 0);
@@ -55,7 +55,7 @@ class CartController extends Controller {
         $product = $productModel->findById($productId);
 
         if (!$product || (int)($product['status'] ?? 0) !== 1) {
-            Session::flash('error', 'Product not available.');
+            Session::flash('error', 'Sản phẩm không khả dụng.');
             $this->redirect('/products');
         }
 
@@ -63,49 +63,52 @@ class CartController extends Controller {
         $cartModel = new CartItemModel();
         $currentQty = $cartModel->getItemQuantity($customerId, $productId);
         $newQty = $currentQty + $quantity;
+
         if ($newQty > $stock) {
-            Session::flash('error', 'Only ' . $stock . ' items available in stock.');
+            Session::flash('error', "Chỉ còn {$stock} sản phẩm trong kho.");
             $this->redirect('/products/' . $productId);
         }
 
         $cartModel->upsertAdd($customerId, $productId, $quantity, (float)($product['price'] ?? 0));
 
-        Session::flash('success', (string)($product['product_name'] ?? 'Product') . ' added to cart!');
+        Session::flash('success', (string)($product['product_name'] ?? 'Sản phẩm') . ' đã được thêm vào giỏ hàng!');
         $this->redirect($this->safeBackPath('/products/' . $productId));
     }
 
     public function addAjax(): void {
-        // AJAX add-to-cart: no redirect, return JSON
         $this->requireAuth();
         $customerId = (int)Session::getUser()['id'];
 
         $token = (string)($_POST['csrf_token'] ?? '');
         if (!Session::verifyCsrfToken($token)) {
             http_response_code(403);
-            $this->json(['success' => false, 'message' => 'Invalid CSRF token.']);
+            $this->json(['success' => false, 'message' => 'Token CSRF không hợp lệ.']);
         }
 
         $productId = (int)($_POST['product_id'] ?? 0);
         $quantity = max(1, (int)($_POST['quantity'] ?? 1));
+
         if ($productId <= 0) {
             http_response_code(400);
-            $this->json(['success' => false, 'message' => 'Invalid product.']);
+            $this->json(['success' => false, 'message' => 'Sản phẩm không hợp lệ.']);
         }
 
         $productModel = new ProductModel();
         $product = $productModel->findById($productId);
+
         if (!$product || (int)($product['status'] ?? 0) !== 1) {
             http_response_code(404);
-            $this->json(['success' => false, 'message' => 'Product not available.']);
+            $this->json(['success' => false, 'message' => 'Sản phẩm không khả dụng.']);
         }
 
         $stock = (int)($product['stock_quantity'] ?? 0);
         $cartModel = new CartItemModel();
         $currentQty = $cartModel->getItemQuantity($customerId, $productId);
         $newQty = $currentQty + $quantity;
+
         if ($newQty > $stock) {
             http_response_code(409);
-            $this->json(['success' => false, 'message' => 'Only ' . $stock . ' items available in stock.']);
+            $this->json(['success' => false, 'message' => "Chỉ còn {$stock} sản phẩm trong kho."]);
         }
 
         $cartModel->upsertAdd($customerId, $productId, $quantity, (float)($product['price'] ?? 0));
@@ -113,7 +116,7 @@ class CartController extends Controller {
 
         $this->json([
             'success'    => true,
-            'message'    => (string)($product['product_name'] ?? 'Product') . ' added to cart!',
+            'message'    => (string)($product['product_name'] ?? 'Sản phẩm') . ' đã được thêm vào giỏ hàng!',
             'cart_count' => $count,
         ]);
     }
@@ -121,8 +124,8 @@ class CartController extends Controller {
     public function update(): void {
         $this->requireAuth();
         $this->verifyCsrfOr403('/cart');
-        $customerId = (int)Session::getUser()['id'];
 
+        $customerId = (int)Session::getUser()['id'];
         $productId = (int)($_POST['product_id'] ?? 0);
         $quantity = max(1, (int)($_POST['quantity'] ?? 1));
 
@@ -132,27 +135,28 @@ class CartController extends Controller {
 
         $cartModel = new CartItemModel();
         if ($cartModel->getItemQuantity($customerId, $productId) <= 0) {
-            Session::flash('error', 'Item not found in cart.');
+            Session::flash('error', 'Sản phẩm không có trong giỏ hàng.');
             $this->redirect('/cart');
         }
 
         $productModel = new ProductModel();
         $product = $productModel->findById($productId);
+
         if (!$product || (int)($product['status'] ?? 0) !== 1) {
-            Session::flash('error', 'Product not available.');
+            Session::flash('error', 'Sản phẩm không khả dụng.');
             $cartModel->removeItem($customerId, $productId);
             $this->redirect('/cart');
         }
 
         $stock = (int)($product['stock_quantity'] ?? 0);
         if ($quantity > $stock) {
-            Session::flash('error', 'Only ' . $stock . ' items available in stock.');
+            Session::flash('error', "Chỉ còn {$stock} sản phẩm trong kho.");
             $this->redirect('/cart');
         }
 
         $cartModel->updateQuantity($customerId, $productId, $quantity);
 
-        Session::flash('success', 'Cart updated.');
+        Session::flash('success', 'Giỏ hàng đã được cập nhật.');
         $this->redirect('/cart');
     }
 
@@ -163,34 +167,36 @@ class CartController extends Controller {
         $token = (string)($_POST['csrf_token'] ?? '');
         if (!Session::verifyCsrfToken($token)) {
             http_response_code(403);
-            $this->json(['success' => false, 'message' => 'Invalid CSRF token.']);
+            $this->json(['success' => false, 'message' => 'Token CSRF không hợp lệ.']);
         }
 
         $productId = (int)($_POST['product_id'] ?? 0);
         $quantity = max(1, (int)($_POST['quantity'] ?? 1));
+
         if ($productId <= 0) {
             http_response_code(400);
-            $this->json(['success' => false, 'message' => 'Invalid product.']);
+            $this->json(['success' => false, 'message' => 'Sản phẩm không hợp lệ.']);
         }
 
         $cartModel = new CartItemModel();
         if ($cartModel->getItemQuantity($customerId, $productId) <= 0) {
             http_response_code(404);
-            $this->json(['success' => false, 'message' => 'Item not found in cart.']);
+            $this->json(['success' => false, 'message' => 'Sản phẩm không có trong giỏ hàng.']);
         }
 
         $productModel = new ProductModel();
         $product = $productModel->findById($productId);
+
         if (!$product || (int)($product['status'] ?? 0) !== 1) {
             $cartModel->removeItem($customerId, $productId);
             http_response_code(404);
-            $this->json(['success' => false, 'message' => 'Product not available.']);
+            $this->json(['success' => false, 'message' => 'Sản phẩm không khả dụng.']);
         }
 
         $stock = (int)($product['stock_quantity'] ?? 0);
         if ($quantity > $stock) {
             http_response_code(409);
-            $this->json(['success' => false, 'message' => 'Only ' . $stock . ' items available in stock.']);
+            $this->json(['success' => false, 'message' => "Chỉ còn {$stock} sản phẩm trong kho."]);
         }
 
         $cartModel->updateQuantity($customerId, $productId, $quantity);
@@ -214,7 +220,7 @@ class CartController extends Controller {
 
         $this->json([
             'success'     => true,
-            'message'     => 'Cart updated.',
+            'message'     => 'Giỏ hàng đã được cập nhật.',
             'cart_count'  => $count,
             'product_id'  => $productId,
             'quantity'    => $quantity,
@@ -229,13 +235,14 @@ class CartController extends Controller {
     public function remove(): void {
         $this->requireAuth();
         $this->verifyCsrfOr403('/cart');
-        $customerId = (int)Session::getUser()['id'];
 
+        $customerId = (int)Session::getUser()['id'];
         $productId = (int)($_POST['product_id'] ?? 0);
+
         if ($productId > 0) {
             $cartModel = new CartItemModel();
             $cartModel->removeItem($customerId, $productId);
-            Session::flash('success', 'Item removed.');
+            Session::flash('success', 'Sản phẩm đã được xóa khỏi giỏ hàng.');
         }
 
         $this->redirect('/cart');
@@ -248,7 +255,7 @@ class CartController extends Controller {
         $token = (string)($_POST['csrf_token'] ?? '');
         if (!Session::verifyCsrfToken($token)) {
             http_response_code(403);
-            $this->json(['success' => false, 'message' => 'Invalid CSRF token.']);
+            $this->json(['success' => false, 'message' => 'Token CSRF không hợp lệ.']);
         }
 
         $productId = (int)($_POST['product_id'] ?? 0);
@@ -270,7 +277,7 @@ class CartController extends Controller {
 
         $this->json([
             'success'    => true,
-            'message'    => 'Item removed.',
+            'message'    => 'Sản phẩm đã được xóa khỏi giỏ hàng.',
             'cart_count' => $count,
             'subtotal'   => $subtotal,
             'shipping'   => $shipping,
@@ -282,11 +289,12 @@ class CartController extends Controller {
     public function clear(): void {
         $this->requireAuth();
         $this->verifyCsrfOr403('/cart');
+
         $customerId = (int)Session::getUser()['id'];
 
         $cartModel = new CartItemModel();
         $cartModel->clearCart($customerId);
-        Session::flash('success', 'Cart cleared.');
+        Session::flash('success', 'Giỏ hàng đã được xóa sạch.');
         $this->redirect('/cart');
     }
 
@@ -298,7 +306,7 @@ class CartController extends Controller {
                 Session::flash('warning', $messageIfGuest);
                 $this->redirect($redirectPath);
             }
-            Session::flash('error', 'Invalid CSRF token.');
+            Session::flash('error', 'Token CSRF không hợp lệ.');
             $this->redirect($redirectPath);
         }
     }

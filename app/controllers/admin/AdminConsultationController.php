@@ -42,7 +42,7 @@ class AdminConsultationController extends Controller {
 
     public function reply(int $id): void {
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-            Session::flash('error', 'Invalid CSRF token.');
+            Session::flash('error', 'CSRF không hợp lệ.');
             $this->redirect("/admin/consultations/{$id}");
             return;
         }
@@ -55,23 +55,23 @@ class AdminConsultationController extends Controller {
 
         $reply = trim($_POST['reply'] ?? '');
         if (empty($reply)) {
-            Session::flash('error', 'Reply cannot be empty.');
+            Session::flash('error', 'Reply không được để trống.');
             $this->redirect("/admin/consultations/{$id}");
             return;
         }
 
         if (mb_strlen($reply) > 3000) {
-            Session::flash('error', 'Reply is too long (max 3000 characters).');
+            Session::flash('error', 'Reply quá dài (tối đa 3000 ký tự).');
             Session::setOldInput($_POST);
             $this->redirect("/admin/consultations/{$id}");
             return;
         }
 
         if ($this->consultationModel->reply($id, $reply)) {
-            Session::flash('success', 'Reply sent and consultation marked as resolved.');
+            Session::flash('success', 'Đã gửi phản hồi và yêu cầu tham vấn đã được giải quyết.');
             $this->redirect('/admin/consultations');
         } else {
-            Session::flash('error', 'Operation failed.');
+            Session::flash('error', 'Thao tác thất bại.');
             $this->redirect("/admin/consultations/{$id}");
         }
     }

@@ -10,7 +10,7 @@ class OrderController extends Controller {
         $orders = $model->getOrdersByCustomer($customerId);
 
         $this->render('orders/index', [
-            'title'  => 'My Orders',
+            'title'  => 'Đơn hàng của tôi',
             'orders' => $orders,
         ]);
     }
@@ -27,19 +27,19 @@ class OrderController extends Controller {
         $order = $model->getOrderWithDetails($id);
         if (!$order) {
             http_response_code(404);
-            $this->render('errors/404', ['title' => 'Page Not Found']);
+            $this->render('errors/404', ['title' => 'Không tìm thấy trang']);
             return;
         }
 
         $customerId = (int)Session::getUser()['id'];
         if ((int)($order['customer_id'] ?? 0) !== $customerId) {
             http_response_code(403);
-            $this->render('errors/403', ['title' => 'Access Denied']);
+            $this->render('errors/403', ['title' => 'Truy cập bị từ chối']);
             return;
         }
 
         $this->render('orders/detail', [
-            'title' => 'Order #' . (int)$order['id'],
+            'title' => 'Đơn hàng #' . (int)$order['id'],
             'order' => $order,
         ]);
     }
@@ -64,7 +64,7 @@ class OrderController extends Controller {
         }
 
         if (empty($cart)) {
-            Session::flash('warning', 'Cart is empty.');
+            Session::flash('warning', 'Giỏ hàng của bạn đang trống.');
             $this->redirect('/cart');
         }
 
@@ -79,7 +79,7 @@ class OrderController extends Controller {
         $customer = $customerModel->findById($customerId);
 
         $this->render('orders/checkout', [
-            'title'    => 'Checkout',
+            'title'    => 'Thanh toán',
             'cart'     => $cart,
             'subtotal' => $subtotal,
             'shipping' => $shipping,
@@ -96,7 +96,7 @@ class OrderController extends Controller {
         $token = (string)($_POST['csrf_token'] ?? '');
         if (!Session::verifyCsrfToken($token)) {
             http_response_code(403);
-            Session::flash('error', 'Invalid CSRF token.');
+            Session::flash('error', 'Token CSRF không hợp lệ.');
             $this->redirect('/orders/checkout');
         }
 
@@ -143,12 +143,12 @@ class OrderController extends Controller {
         foreach ($cartItems as $item) {
             $p = $productModel->findById((int)$item['id']);
             if (!$p) {
-                Session::flash('error', 'Product not available.');
+                Session::flash('error', 'Sản phẩm không khả dụng.');
                 $this->redirect('/cart');
             }
             $stock = (int)($p['stock_quantity'] ?? 0);
             if ((int)$item['quantity'] > $stock) {
-                Session::flash('error', 'Item "' . (string)($p['product_name'] ?? '') . '" only has ' . $stock . ' left.');
+                Session::flash('error', 'Sản phẩm "' . (string)($p['product_name'] ?? '') . '" chỉ còn ' . $stock . ' sản phẩm.');
                 $this->redirect('/cart');
             }
         }
@@ -156,7 +156,7 @@ class OrderController extends Controller {
         $orderModel = new OrderModel();
         $orderId = $orderModel->createOrder($customerId, $shippingData, $cartItems);
         if (!$orderId) {
-            Session::flash('error', 'Order failed, please try again.');
+            Session::flash('error', 'Đặt hàng thất bại. Vui lòng thử lại sau.');
             Session::setOldInput([
                 'receiver_name'    => $shippingData['receiver_name'],
                 'receiver_phone'   => $shippingData['receiver_phone'],
@@ -170,7 +170,7 @@ class OrderController extends Controller {
         // Clear DB cart after success
         $cartModel->clearCart($customerId);
 
-        Session::flash('success', 'Order #' . $orderId . ' placed successfully!');
+        Session::flash('success', 'Đặt hàng thành công! Đơn hàng #' . $orderId);
         $this->redirect('/orders/' . $orderId);
     }
 
@@ -178,20 +178,20 @@ class OrderController extends Controller {
         $errors = [];
 
         $name = $data['receiver_name'] ?? '';
-        if ($name === '') $errors[] = 'Receiver name is required.';
+        if ($name === '') $errors[] = 'Vui lòng nhập họ tên người nhận.';
         $len = mb_strlen((string)$name);
-        if ($name !== '' && ($len < 2 || $len > 100)) $errors[] = 'Name must be 2–100 characters.';
+        if ($name !== '' && ($len < 2 || $len > 100)) $errors[] = 'Họ tên phải từ 2 đến 100 ký tự.';
 
         $phone = $data['receiver_phone'] ?? '';
-        if ($phone === '') $errors[] = 'Phone number is required.';
+        if ($phone === '') $errors[] = 'Vui lòng nhập số điện thoại.';
         if ($phone !== '' && !preg_match('/^(0[3|5|7|8|9])[0-9]{8}$/', (string)$phone)) {
-            $errors[] = 'Invalid phone number.';
+            $errors[] = 'Số điện thoại không hợp lệ.';
         }
 
         $addr = $data['shipping_address'] ?? '';
-        if ($addr === '') $errors[] = 'Shipping address is required.';
+        if ($addr === '') $errors[] = 'Vui lòng nhập địa chỉ giao hàng.';
         $alen = mb_strlen((string)$addr);
-        if ($addr !== '' && ($alen < 10 || $alen > 500)) $errors[] = 'Address must be 10–500 characters.';
+        if ($addr !== '' && ($alen < 10 || $alen > 500)) $errors[] = 'Địa chỉ phải từ 10 đến 500 ký tự.';
 
         $note = (string)($data['note'] ?? '');
         if (mb_strlen($note) > 500) $data['note'] = mb_substr($note, 0, 500);
@@ -204,4 +204,3 @@ class OrderController extends Controller {
         return $errors;
     }
 }
-

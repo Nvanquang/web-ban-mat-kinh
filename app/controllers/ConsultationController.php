@@ -10,7 +10,7 @@ class ConsultationController extends Controller {
         $consultations = $model->getByCustomer($customerId);
 
         $this->render('consultations/index', [
-            'title'         => 'Consultation & Support',
+            'title'         => 'Tư vấn & Hỗ trợ',
             'consultations' => $consultations,
         ]);
     }
@@ -21,21 +21,21 @@ class ConsultationController extends Controller {
         $token = (string)($_POST['csrf_token'] ?? '');
         if (!Session::verifyCsrfToken($token)) {
             http_response_code(403);
-            Session::flash('error', 'Invalid CSRF token.');
+            Session::flash('error', 'Token CSRF không hợp lệ.');
             $this->redirect('/consultations');
         }
 
         $content = trim((string)($_POST['content'] ?? ''));
         if ($content === '') {
-            Session::flash('error', 'Question cannot be empty.');
+            Session::flash('error', 'Vui lòng nhập nội dung câu hỏi.');
             $this->redirect('/consultations');
         }
         if (mb_strlen($content) < 10) {
-            Session::flash('error', 'Question is too short (min 10 characters).');
+            Session::flash('error', 'Câu hỏi quá ngắn (tối thiểu 10 ký tự).');
             $this->redirect('/consultations');
         }
         if (mb_strlen($content) > 2000) {
-            Session::flash('error', 'Question is too long (max 2000 characters).');
+            Session::flash('error', 'Câu hỏi quá dài (tối đa 2000 ký tự).');
             $this->redirect('/consultations');
         }
 
@@ -47,12 +47,11 @@ class ConsultationController extends Controller {
         ]);
 
         if (!$id) {
-            Session::flash('error', 'Failed to send, please try again.');
+            Session::flash('error', 'Gửi câu hỏi thất bại. Vui lòng thử lại sau.');
             $this->redirect('/consultations');
         }
 
-        Session::flash('success', 'Your question has been sent! We will reply shortly.');
+        Session::flash('success', 'Câu hỏi của bạn đã được gửi thành công! Chúng tôi sẽ trả lời trong thời gian sớm nhất.');
         $this->redirect('/consultations');
     }
 }
-
