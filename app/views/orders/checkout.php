@@ -19,32 +19,32 @@ $payment = $oldInput['payment_method'] ?? 'COD';
             <div class="col-lg-7">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="fw-bold mb-3">SHIPPING INFORMATION</div>
+                        <div class="fw-bold mb-3">THÔNG TIN GIAO HÀNG</div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Receiver Name <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">Họ tên <span class="text-danger">*</span></label>
                             <input type="text" name="receiver_name" class="form-control"
                                    value="<?= htmlspecialchars((string)($oldInput['receiver_name'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
                             <input type="tel" name="receiver_phone" class="form-control"
                                    value="<?= htmlspecialchars((string)($oldInput['receiver_phone'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Shipping Address <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">Địa chỉ giao hàng <span class="text-danger">*</span></label>
                             <textarea name="shipping_address" class="form-control" rows="3" required><?= htmlspecialchars((string)($oldInput['shipping_address'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Note (optional)</label>
+                            <label class="form-label fw-semibold">Ghi chú (tùy chọn)</label>
                             <textarea name="note" class="form-control" rows="2" maxlength="500"><?= htmlspecialchars((string)($oldInput['note'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?></textarea>
                         </div>
 
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="useMyAddress()">
-                            Use my account address
+                            Sử dụng địa chỉ của tôi
                         </button>
                     </div>
                 </div>
@@ -68,28 +68,28 @@ $payment = $oldInput['payment_method'] ?? 'COD';
 
                         <hr>
                         <div class="d-flex justify-content-between mb-2">
-                            <div class="text-muted">Subtotal</div>
+                            <div class="text-muted">Tổng tiền</div>
                             <div class="fw-semibold"><?= number_format($subtotal, 0, ',', '.') ?> ₫</div>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
-                            <div class="text-muted">Shipping</div>
+                            <div class="text-muted">Phí vận chuyển</div>
                             <div class="fw-semibold"><?= $shipping <= 0 ? 'Free' : number_format($shipping, 0, ',', '.') . ' ₫' ?></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="text-muted">Total</div>
+                            <div class="text-muted">Tổng tiền</div>
                             <div class="fw-bold" style="color:#0ea5e9; font-size:1.4rem;">
                                 <?= number_format($total, 0, ',', '.') ?> ₫
                             </div>
                         </div>
 
-                        <div class="fw-bold mb-2">Payment Method</div>
+                        <div class="fw-bold mb-2">Phương thức thanh toán</div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="payment_method" id="pm_cod" value="COD" <?= $payment === 'COD' ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="pm_cod">COD (Cash on Delivery)</label>
+                            <label class="form-check-label" for="pm_cod">COD (Thanh toán khi nhận hàng)</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="payment_method" id="pm_bank" value="Bank Transfer" <?= $payment === 'Bank Transfer' ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="pm_bank">Bank Transfer</label>
+                            <label class="form-check-label" for="pm_bank">Chuyển khoản ngân hàng</label>
                         </div>
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="radio" name="payment_method" id="pm_vnpay" value="VNPay" <?= $payment === 'VNPay' ? 'checked' : '' ?>>
@@ -97,9 +97,9 @@ $payment = $oldInput['payment_method'] ?? 'COD';
                         </div>
 
                         <button type="submit" class="btn text-white w-100 py-2" style="background:#0ea5e9; font-size:1.05rem;">
-                            Place Order
+                            Đặt hàng
                         </button>
-                        <a class="d-block text-center mt-3 text-decoration-none" href="<?= BASE_URL ?>/cart">Back to Cart</a>
+                        <a class="d-block text-center mt-3 text-decoration-none" href="<?= BASE_URL ?>/cart">Quay lại giỏ hàng</a>
                     </div>
                 </div>
             </div>

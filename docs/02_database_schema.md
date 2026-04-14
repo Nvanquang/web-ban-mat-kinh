@@ -51,6 +51,7 @@ CREATE TABLE products (
     old_price      DECIMAL(10,2)  DEFAULT NULL,   -- Old price for promotion display
     stock_quantity INT            DEFAULT 0,      -- Inventory quantity
     description    TEXT,
+    gender         ENUM('all','male','female') DEFAULT 'all',
     image_url      VARCHAR(255),
     view_count     INT            DEFAULT 0,      -- Used to filter hot products
     is_custom      TINYINT(1)     DEFAULT 0,

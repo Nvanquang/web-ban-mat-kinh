@@ -16,10 +16,12 @@ class AdminProductController extends Controller {
         $page = max(1, (int)($this->getQuery('page', 1)));
         $keyword = trim($this->getQuery('keyword', ''));
         $categoryId = (int)$this->getQuery('category_id', 0);
+        $gender = trim($this->getQuery('gender', ''));
 
         $filters = [];
         if ($keyword !== '') $filters['keyword'] = $keyword;
         if ($categoryId > 0) $filters['category_id'] = $categoryId;
+        if ($gender !== '') $filters['gender'] = $gender;
 
         $result = $productModel->getAdminList($filters, $page, 10);
         $categories = $categoryModel->getAllVisible();
@@ -68,6 +70,7 @@ class AdminProductController extends Controller {
             'old_price' => !empty($_POST['old_price']) ? (float)$_POST['old_price'] : null,
             'stock_quantity' => (int)($_POST['stock_quantity'] ?? 0),
             'description' => trim($_POST['description'] ?? ''),
+            'gender' => trim($_POST['gender'] ?? 'all'),
             'status' => (int)($_POST['status'] ?? 1),
         ];
 
@@ -164,6 +167,7 @@ class AdminProductController extends Controller {
             'old_price' => !empty($_POST['old_price']) ? (float)$_POST['old_price'] : null,
             'stock_quantity' => (int)($_POST['stock_quantity'] ?? 0),
             'description' => trim($_POST['description'] ?? ''),
+            'gender' => trim($_POST['gender'] ?? 'all'),
             'status' => (int)($_POST['status'] ?? 1),
         ];
 
@@ -295,6 +299,10 @@ class AdminProductController extends Controller {
 
         if ($data['stock_quantity'] < 0) {
             $errors[] = 'Số lượng tồn kho không thể âm.';
+        }
+
+        if (!isset($data['gender']) || !in_array($data['gender'], ['male', 'female', 'all'])) {
+            $errors[] = 'Giới tính không hợp lệ.';
         }
 
         return $errors;

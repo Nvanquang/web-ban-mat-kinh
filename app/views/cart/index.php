@@ -14,9 +14,9 @@ foreach ($cart as $it) {
     <?php if (empty($cart)): ?>
         <div class="text-center py-5">
             <div class="fs-1 mb-3">🛒</div>
-            <h3 class="fw-bold mb-2">Your cart is empty</h3>
-            <p class="text-muted mb-4">Start shopping to add items</p>
-            <a class="btn text-white px-4 py-2" style="background:#0ea5e9;" href="<?= BASE_URL ?>/products">Browse Products</a>
+            <h3 class="fw-bold mb-2">Giỏ hàng của bạn trống</h3>
+            <p class="text-muted mb-4">Hãy mua sắm để thêm sản phẩm vào giỏ hàng</p>
+            <a class="btn text-white px-4 py-2" style="background:#0ea5e9;" href="<?= BASE_URL ?>/products">Xem sản phẩm</a>
         </div>
     <?php else: ?>
         <div class="d-flex justify-content-between align-items-end mb-3">
@@ -101,27 +101,27 @@ foreach ($cart as $it) {
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm sticky-summary">
                     <div class="card-body">
-                        <div class="fw-bold mb-3">ORDER SUMMARY</div>
+                        <div class="fw-bold mb-3">Đơn hàng của bạn</div>
                         <div class="d-flex justify-content-between mb-2">
-                            <div class="text-muted">Subtotal</div>
+                            <div class="text-muted">Tổng tiền</div>
                             <div class="fw-semibold"><span id="cartSubtotal"><?= number_format($subtotal, 0, ',', '.') ?></span> ₫</div>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
-                            <div class="text-muted">Shipping</div>
+                            <div class="text-muted">Phí vận chuyển</div>
                             <div class="fw-semibold"><span id="cartShipping"><?= $shipping <= 0 ? 'Free' : number_format($shipping, 0, ',', '.') . ' ₫' ?></span></div>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="text-muted">Total</div>
+                            <div class="text-muted">Tổng tiền</div>
                             <div class="fw-bold" style="color:#0ea5e9; font-size:1.4rem;">
                                 <span id="cartTotal"><?= number_format($total, 0, ',', '.') ?></span> ₫
                             </div>
                         </div>
 
                         <a class="btn text-white w-100 py-2" style="background:#0ea5e9;" href="<?= BASE_URL ?>/orders/checkout">
-                            Proceed to Checkout
+                            Thanh toán
                         </a>
-                        <a class="d-block text-center mt-3 text-decoration-none" href="<?= BASE_URL ?>/products">Continue Shopping</a>
+                        <a class="d-block text-center mt-3 text-decoration-none" href="<?= BASE_URL ?>/products">Tiếp tục mua sắm</a>
                     </div>
                 </div>
             </div>

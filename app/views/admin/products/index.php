@@ -1,4 +1,4 @@
-﻿<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="h3 mb-0">
             <i class="bi bi-box-seam me-2 text-primary"></i>Products
@@ -40,6 +40,17 @@
                             <?= htmlspecialchars($category['category_name']) ?>
                         </option>
                     <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="gender" class="form-label">
+                    <i class="bi bi-gender-ambiguous me-1"></i>Giới tính
+                </label>
+                <select class="form-select" id="gender" name="gender">
+                    <option value="">Tất cả giới tính</option>
+                    <option value="all" <?= ($filters['gender'] ?? '') == 'all' ? 'selected' : '' ?>>Unisex (Tất cả)</option>
+                    <option value="male" <?= ($filters['gender'] ?? '') == 'male' ? 'selected' : '' ?>>Nam</option>
+                    <option value="female" <?= ($filters['gender'] ?? '') == 'female' ? 'selected' : '' ?>>Nữ</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex align-items-end">
@@ -96,6 +107,7 @@
                             <th class="border-0">#</th>
                             <th class="border-0">Sản phẩm</th>
                             <th class="border-0">Giá</th>
+                            <th class="border-0">Phân loại</th>
                             <th class="border-0">Tồn kho</th>
                             <th class="border-0">Trạng thái</th>
                             <th class="border-0 text-end">Thao tác</th>
@@ -143,6 +155,21 @@
                                     </div>
                                 </td>
                                 <td>
+                                    <?php if (($product['gender'] ?? 'all') === 'male'): ?>
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                            <i class="bi bi-gender-male me-1"></i>Nam
+                                        </span>
+                                    <?php elseif (($product['gender'] ?? 'all') === 'female'): ?>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-gender-female me-1"></i>Nữ
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                            <i class="bi bi-gender-ambiguous me-1"></i>Unisex
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <span class="badge fs-6 px-3 py-2 <?= $product['stock_quantity'] > 10 ? 'bg-success' : ($product['stock_quantity'] > 0 ? 'bg-warning' : 'bg-danger') ?>">
                                         <i class="bi bi-<?= $product['stock_quantity'] > 10 ? 'check-circle' : ($product['stock_quantity'] > 0 ? 'exclamation-triangle' : 'x-circle') ?> me-1"></i>
                                         <?= $product['stock_quantity'] ?>
@@ -184,7 +211,7 @@
                         <ul class="pagination pagination-sm justify-content-center mb-0">
                             <?php if ($pagination['has_prev']): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?= $pagination['current_page'] - 1 ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>">
+                                    <a class="page-link" href="?page=<?= $pagination['current_page'] - 1 ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>&gender=<?= urlencode($filters['gender'] ?? '') ?>">
                                         <i class="bi bi-chevron-left"></i>
                                     </a>
                                 </li>
@@ -197,7 +224,7 @@
 
                             <?php if ($start > 1): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=1&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>">1</a>
+                                    <a class="page-link" href="?page=1&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>&gender=<?= urlencode($filters['gender'] ?? '') ?>">1</a>
                                 </li>
                                 <?php if ($start > 2): ?>
                                     <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -206,7 +233,7 @@
 
                             <?php for ($i = $start; $i <= $end; $i++): ?>
                                 <li class="page-item <?= $i === $pagination['current_page'] ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>">
+                                    <a class="page-link" href="?page=<?= $i ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>&gender=<?= urlencode($filters['gender'] ?? '') ?>">
                                         <?= $i ?>
                                     </a>
                                 </li>
@@ -217,7 +244,7 @@
                                     <li class="page-item disabled"><span class="page-link">...</span></li>
                                 <?php endif; ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?= $pagination['total_pages'] ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>">
+                                    <a class="page-link" href="?page=<?= $pagination['total_pages'] ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>&gender=<?= urlencode($filters['gender'] ?? '') ?>">
                                         <?= $pagination['total_pages'] ?>
                                     </a>
                                 </li>
@@ -225,7 +252,7 @@
 
                             <?php if ($pagination['has_next']): ?>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=<?= $pagination['current_page'] + 1 ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>">
+                                    <a class="page-link" href="?page=<?= $pagination['current_page'] + 1 ?>&keyword=<?= urlencode($filters['keyword'] ?? '') ?>&category_id=<?= $filters['category_id'] ?? '' ?>&gender=<?= urlencode($filters['gender'] ?? '') ?>">
                                         <i class="bi bi-chevron-right"></i>
                                     </a>
                                 </li>

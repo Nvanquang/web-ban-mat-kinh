@@ -258,12 +258,51 @@ class OrderModel extends Model {
     /**
      * Cập nhật trạng thái đơn hàng
      */
+    /**
+     * Cập nhật trạng thái đơn hàng
+     */
     public function updateStatus(int $id, string $status): bool {
         try {
             $stmt = $this->db->prepare("UPDATE {$this->table} SET status = ? WHERE id = ?");
             return $stmt->execute([$status, $id]);
         } catch (PDOException $e) {
             error_log('OrderModel::updateStatus error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Hoàn lại tồn kho khi đơn hàng bị hủy
+     */
+    public function returnStock(int $orderId): bool {
+        try {
+            // Lấy chi tiết đơn hàng
+            $stmtDetails = $this->db->prepare("SELECT product_id, quantity FROM order_details WHERE order_id = ?");
+            $stmtDetails->execute([$orderId]);
+            $items = $stmtDetails->fetchAll();
+
+            if (empty($items)) return true;
+
+            $this->db->beginTransaction();
+
+            $stmtUpdate = $this->db->prepare("
+                UPDATE products 
+                SET stock_quantity = stock_quantity + ? 
+                WHERE id = ?
+            ");
+
+            foreach ($items as $item) {
+                $stmtUpdate->execute([
+                    (int)$item['quantity'],
+                    (int)$item['product_id']
+                ]);
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (PDOException $e) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            error_log('OrderModel::returnStock error: ' . $e->getMessage());
             return false;
         }
     }

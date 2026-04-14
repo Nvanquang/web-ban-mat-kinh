@@ -95,6 +95,11 @@ class AdminOrderController extends Controller {
         }
 
         if ($this->orderModel->updateStatus($id, $newStatus)) {
+            // Nếu hủy đơn hàng, thực hiện hoàn kho
+            if ($newStatus === 'cancelled') {
+                $this->orderModel->returnStock($id);
+            }
+
             $statusName = $this->getStatusName($newStatus); // Tên tiếng Việt đẹp hơn
             Session::flash('success', "Trạng thái đơn hàng đã được cập nhật thành: {$statusName}.");
         } else {

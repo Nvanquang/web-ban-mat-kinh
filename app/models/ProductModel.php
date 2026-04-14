@@ -11,7 +11,7 @@ class ProductModel extends Model {
     public function findById(int $id): array|false {
         try {
             $stmt = $this->db->prepare("
-                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description, created_at
+                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description, gender, created_at
                 FROM {$this->table}
                 WHERE id = ? AND status = 1
                 LIMIT 1
@@ -31,7 +31,7 @@ class ProductModel extends Model {
     public function findByIdAdmin(int $id): array|false {
         try {
             $stmt = $this->db->prepare("
-                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description, created_at
+                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description, gender, created_at
                 FROM {$this->table}
                 WHERE id = ?
                 LIMIT 1
@@ -99,6 +99,12 @@ class ProductModel extends Model {
                 $where[] = 'p.category_id = ?';
                 $params[] = $categoryId;
             }
+            
+            $gender = $filters['gender'] ?? '';
+            if (in_array($gender, ['male', 'female', 'all'])) {
+                $where[] = 'p.gender = ?';
+                $params[] = $gender;
+            }
 
             $minPrice = (float)($filters['min_price'] ?? 0);
             if ($minPrice > 0) {
@@ -145,7 +151,7 @@ class ProductModel extends Model {
             $stmt = $this->db->prepare("
                 SELECT
                     p.id, p.category_id, p.product_name, p.price, p.old_price,
-                    p.stock_quantity, p.description, p.image_url, p.view_count, p.created_at,
+                    p.stock_quantity, p.description, p.image_url, p.view_count, p.gender, p.created_at,
                     gc.category_name
                 FROM {$this->table} p
                 LEFT JOIN glasses_categories gc ON p.category_id = gc.id
@@ -266,6 +272,13 @@ class ProductModel extends Model {
                 $params[] = (int)$status;
             }
 
+            // Gender filter
+            $gender = $filters['gender'] ?? '';
+            if (in_array($gender, ['male', 'female', 'all'])) {
+                $where[] = 'p.gender = ?';
+                $params[] = $gender;
+            }
+
             $whereSql = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
             // Count total
@@ -282,7 +295,7 @@ class ProductModel extends Model {
             $stmt = $this->db->prepare("
                 SELECT
                     p.id, p.product_name, p.price, p.old_price, p.stock_quantity,
-                    p.image_url, p.status, p.created_at, p.view_count,
+                    p.image_url, p.status, p.created_at, p.view_count, p.gender,
                     gc.category_name
                 FROM {$this->table} p
                 LEFT JOIN glasses_categories gc ON p.category_id = gc.id
@@ -326,9 +339,9 @@ class ProductModel extends Model {
             $stmt = $this->db->prepare("
                 INSERT INTO {$this->table}
                     (category_id, product_name, price, old_price, stock_quantity,
-                     description, image_url, status)
+                     description, image_url, gender, status)
                 VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?)
+                    (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $result = $stmt->execute([
                 (int)$data['category_id'],
@@ -338,6 +351,7 @@ class ProductModel extends Model {
                 (int)$data['stock_quantity'],
                 trim($data['description'] ?? ''),
                 $data['image_url'] ?? null,
+                $data['gender'] ?? 'all',
                 (int)($data['status'] ?? 1),
             ]);
             return $result ? (int)$this->db->lastInsertId() : false;
@@ -361,6 +375,7 @@ class ProductModel extends Model {
                     stock_quantity = ?,
                     description = ?,
                     image_url = ?,
+                    gender = ?,
                     status = ?
                 WHERE id = ?
             ");
@@ -372,6 +387,7 @@ class ProductModel extends Model {
                 (int)$data['stock_quantity'],
                 trim($data['description'] ?? ''),
                 $data['image_url'] ?? null,
+                $data['gender'] ?? 'all',
                 (int)($data['status'] ?? 1),
                 $id,
             ]);

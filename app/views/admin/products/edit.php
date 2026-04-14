@@ -42,6 +42,19 @@
                     </div>
 
                     <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="gender" class="form-label">
+                                Phân loại giới tính <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="gender" name="gender" required>
+                                <option value="all" <?= ($oldInput['gender'] ?? $product['gender'] ?? 'all') == 'all' ? 'selected' : '' ?>>Unisex (Mọi đối tượng)</option>
+                                <option value="male" <?= ($oldInput['gender'] ?? $product['gender']) == 'male' ? 'selected' : '' ?>>Kính Nam</option>
+                                <option value="female" <?= ($oldInput['gender'] ?? $product['gender']) == 'female' ? 'selected' : '' ?>>Kính Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="price" class="form-label">
                                 Giá (₫) <span class="text-danger">*</span>
@@ -148,6 +161,14 @@
 
                     <dt class="col-sm-5">Lượt xem:</dt>
                     <dd class="col-sm-7"><?= $product['view_count'] ?? 0 ?></dd>
+
+                    <dt class="col-sm-5">Giới tính:</dt>
+                    <dd class="col-sm-7">
+                        <?php 
+                        $g = $product['gender'] ?? 'all';
+                        echo $g === 'male' ? 'Nam' : ($g === 'female' ? 'Nữ' : 'Unisex');
+                        ?>
+                    </dd>
                 </dl>
             </div>
         </div>

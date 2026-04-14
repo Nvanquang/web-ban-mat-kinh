@@ -21,12 +21,16 @@ class ProductController extends Controller {
         $allowedSort = ['newest', 'price_asc', 'price_desc', 'popular'];
         if (!in_array($sort, $allowedSort, true)) $sort = 'newest';
 
+        $gender = trim((string)$this->getQuery('gender', ''));
+        if (!in_array($gender, ['male', 'female', 'all'])) $gender = '';
+
         $filters = [
             'category_id' => $categoryId,
             'min_price'   => $minPrice,
             'max_price'   => $maxPrice,
             'keyword'     => $keyword,
             'sort'        => $sort,
+            'gender'      => $gender
         ];
 
         $productModel = new ProductModel();

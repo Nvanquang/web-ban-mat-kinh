@@ -38,6 +38,25 @@ $categories = $categories ?? [];
                         </div>
 
                         <div class="mb-3">
+                            <div class="fw-semibold mb-2">Gender</div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender" id="gender_all" value=""
+                                    <?= (($filters['gender'] ?? '') === '') ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="gender_all">All</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender" id="gender_male" value="male"
+                                    <?= (($filters['gender'] ?? '') === 'male') ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="gender_male">Male</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender" id="gender_female" value="female"
+                                    <?= (($filters['gender'] ?? '') === 'female') ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="gender_female">Female</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
                             <div class="fw-semibold mb-2">Price Range</div>
                             <div class="mb-2">
                                 <label class="form-label small text-muted mb-1">Min</label>
@@ -81,6 +100,7 @@ $categories = $categories ?? [];
                     <input type="hidden" name="min_price" value="<?= htmlspecialchars((string)($filters['min_price'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
                     <input type="hidden" name="max_price" value="<?= htmlspecialchars((string)($filters['max_price'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
                     <input type="hidden" name="keyword" value="<?= htmlspecialchars((string)($filters['keyword'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
+                    <input type="hidden" name="gender" value="<?= htmlspecialchars((string)($filters['gender'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
 
                     <label class="text-muted small">Sort:</label>
                     <select name="sort" class="form-select" style="width: 200px;" onchange="this.form.submit()">
@@ -136,9 +156,18 @@ $categories = $categories ?? [];
                                     <h5 class="product-title mb-2 text-truncate" title="<?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
                                         <?= htmlspecialchars((string)$p['product_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
                                     </h5>
-                                    <p class="product-price mt-auto mb-3">
+                                    <p class="product-price mt-auto mb-2">
                                         <?= number_format((float)$p['price'], 0, ',', '.') ?>₫
                                     </p>
+                                    <div class="mb-3">
+                                        <?php if (($p['gender'] ?? 'all') === 'male'): ?>
+                                            <span class="text-info small fw-semibold"><i class="bi bi-gender-male"></i> Kính Nam</span>
+                                        <?php elseif (($p['gender'] ?? 'all') === 'female'): ?>
+                                            <span class="text-danger small fw-semibold"><i class="bi bi-gender-female"></i> Kính Nữ</span>
+                                        <?php else: ?>
+                                            <span class="text-muted small fw-semibold"><i class="bi bi-gender-ambiguous"></i> Unisex</span>
+                                        <?php endif; ?>
+                                    </div>
 
                                     <form method="POST" action="<?= BASE_URL ?>/cart/add" data-ajax-cart="1" data-ajax-action="<?= BASE_URL ?>/cart/addAjax" class="mt-auto">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Session::getCsrfToken(), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>">
@@ -162,6 +191,7 @@ $categories = $categories ?? [];
                         'max_price' => $filters['max_price'] ?? 0,
                         'keyword'   => $filters['keyword'] ?? '',
                         'sort'      => $filters['sort'] ?? 'newest',
+                        'gender'    => $filters['gender'] ?? '',
                     ];
                     ?>
                     <nav class="mt-4" aria-label="Products pagination">

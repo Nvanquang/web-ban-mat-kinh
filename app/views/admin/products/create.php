@@ -51,6 +51,18 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="all" <?= ($oldInput['gender'] ?? 'all') == 'all' ? 'selected' : '' ?>>Unisex (Mọi đối tượng)</option>
+                                    <option value="male" <?= ($oldInput['gender'] ?? '') == 'male' ? 'selected' : '' ?>>Kính Nam</option>
+                                    <option value="female" <?= ($oldInput['gender'] ?? '') == 'female' ? 'selected' : '' ?>>Kính Nữ</option>
+                                </select>
+                                <label for="gender">
+                                    <i class="bi bi-gender-ambiguous me-1"></i>Phân loại giới tính <span class="text-danger">*</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row g-3 mb-4">
@@ -222,6 +234,7 @@
                             <div class="accordion-body small">
                                 <p><strong>Tên sản phẩm:</strong> Chọn tên rõ ràng, dễ hiểu và hấp dẫn khách hàng.</p>
                                 <p><strong>Danh mục:</strong> Chọn danh mục phù hợp để tổ chức sản phẩm tốt hơn.</p>
+                                <p><strong>Giới tính:</strong> Phân loại sản phẩm dành cho Nam, Nữ hoặc Unisex, giúp khách hàng tìm kiếm chính xác hơn.</p>
                                 <p><strong>Mô tả:</strong> Cung cấp thông tin chi tiết về tính năng và lợi ích.</p>
                             </div>
                         </div>

@@ -18,10 +18,25 @@
         </div>
         <div class="col-md-6">
             <h1 class="fw-bold mb-3"><?= htmlspecialchars($product['product_name']) ?></h1>
-            <div class="mb-2">
+            <div class="mb-2 d-flex gap-2">
                 <?php if (!empty($product['category_name'])): ?>
                     <span class="badge bg-light text-dark border">
-                        <?= htmlspecialchars((string)$product['category_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
+                        <i class="bi bi-tags me-1"></i><?= htmlspecialchars((string)$product['category_name'], ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>
+                    </span>
+                <?php endif; ?>
+                <?php 
+                    $g = $product['gender'] ?? 'all';
+                    if ($g === 'male'): ?>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle">
+                        <i class="bi bi-gender-male me-1"></i>Kính Nam
+                    </span>
+                <?php elseif ($g === 'female'): ?>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                        <i class="bi bi-gender-female me-1"></i>Kính Nữ
+                    </span>
+                <?php else: ?>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                        <i class="bi bi-gender-ambiguous me-1"></i>Unisex
                     </span>
                 <?php endif; ?>
             </div>

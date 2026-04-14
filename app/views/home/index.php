@@ -9,8 +9,8 @@
                 <h1 class="hero-title">Định Hình<br><span class="text-primary">Phong Cách</span> Của Bạn</h1>
                 <p class="hero-subtitle">Khám phá hàng trăm mẫu kính thời trang, bảo vệ mắt tối ưu cùng dịch vụ tư vấn online chuyên nghiệp ngay tại nhà.</p>
                 <div class="d-flex gap-3 justify-content-center justify-content-md-start">
-                    <a href="shop.php" class="btn btn-primary btn-lg btn-custom shadow-sm"><i class="bi bi-cart3 me-2"></i>Mua Ngay</a>
-                    <a href="shop.php" class="btn btn-outline-dark btn-lg btn-custom">Xem Chi Tiết</a>
+                    <a href="<?= BASE_URL ?>/products" class="btn btn-primary btn-lg btn-custom shadow-sm"><i class="bi bi-cart3 me-2"></i>Mua Ngay</a>
+                    <a href="<?= BASE_URL ?>/products" class="btn btn-outline-dark btn-lg btn-custom">Xem Chi Tiết</a>
                 </div>
             </div>
             <div class="col-md-6">
