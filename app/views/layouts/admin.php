@@ -110,13 +110,7 @@
                 </nav>
 
                 <!-- Flash Messages -->
-                <?php if ($flash ?? null): ?>
-                    <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : ($flash['type'] === 'success' ? 'success' : 'info') ?> alert-dismissible fade show shadow-sm" role="alert">
-                        <i class="bi bi-<?= $flash['type'] === 'error' ? 'exclamation-triangle' : ($flash['type'] === 'success' ? 'check-circle' : 'info-circle') ?> me-2"></i>
-                        <?= htmlspecialchars($flash['message']) ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
+                <?php $flash = Session::flash(); ?>
 
                 <!-- Page Content -->
                 <?= $content ?? '' ?>
@@ -133,6 +127,16 @@
     <script>
         // Define BASE_URL for JavaScript
         window.BASE_URL = '<?= BASE_URL ?>';
+        
+        <?php if ($flash): ?>
+        $(document).ready(function() {
+            const type = '<?= $flash['type'] === 'error' ? 'danger' : ($flash['type'] === 'success' ? 'success' : 'info') ?>';
+            const message = <?= json_encode($flash['message']) ?>;
+            if (typeof window.showToast === 'function') {
+                window.showToast(message, type);
+            }
+        });
+        <?php endif; ?>
     </script>
 </body>
 </html>
