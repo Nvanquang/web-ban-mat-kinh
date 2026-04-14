@@ -1,20 +1,27 @@
 <?php
 // app/core/Router.php
 
-class Router {
-    public static function dispatch() {
+class Router
+{
+    public static function dispatch()
+    {
         // Lấy URL từ request
         $url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        
-        // Mặc định là HomeController@index
+
+        // Khởi tạo giá trị mặc định
+        $controllerName = 'HomeController';
+        $action = 'index';
+        $params = [];
+
         if ($url == '') {
+            // Mặc định là HomeController@index
             $controllerName = 'HomeController';
             $action = 'index';
             $params = [];
         } else {
             $urlParts = explode('/', $url);
-            
+
             // Special routes for Auth module (method-aware)
             if (($urlParts[0] ?? '') === 'auth') {
                 $controllerName = 'AuthController';
@@ -43,7 +50,7 @@ class Router {
                 if ($segment === '' || $segment === null) {
                     $action = 'index';
                     $params = [];
-                } elseif (ctype_digit((string)$segment)) {
+                } elseif ($segment !== '' && ctype_digit((string)$segment)) {
                     $action = 'show';
                     $params = [(int)$segment];
                 } else {
@@ -88,7 +95,7 @@ class Router {
                 } elseif ($segment === 'checkout') {
                     $action = ($method === 'POST') ? 'checkout' : 'checkoutForm';
                     $params = [];
-                } elseif (ctype_digit((string)$segment)) {
+                } elseif ($segment !== '' && ctype_digit((string)$segment)) {
                     $action = 'show';
                     $params = [(int)$segment];
                 } else {
@@ -116,25 +123,169 @@ class Router {
                     self::error404();
                     return;
                 }
+            } elseif (($urlParts[0] ?? '') === 'admin') {
+                // Admin routes - require admin access
+                $segment = $urlParts[1] ?? '';
+
+                if ($segment === '' || $segment === null) {
+                    // GET /admin -> AdminDashboardController::index
+                    $controllerName = 'AdminDashboardController';
+                    $action = 'index';
+                    $params = [];
+                } elseif ($segment === 'products') {
+                    $controllerName = 'AdminProductController';
+                    $subSegment = $urlParts[2] ?? '';
+
+                    if ($subSegment === '' || $subSegment === null) {
+                        // GET /admin/products -> index
+                        $action = 'index';
+                        $params = [];
+                    } elseif ($subSegment === 'create') {
+                        // GET/POST /admin/products/create
+                        $action = ($method === 'POST') ? 'create' : 'createForm';
+                        $params = [];
+                    } elseif ($subSegment !== '' && ctype_digit((string)$subSegment)) {
+                        $id = (int)$subSegment;
+                        $subSubSegment = $urlParts[3] ?? '';
+
+                        if ($subSubSegment === 'edit') {
+                            // GET/POST /admin/products/{id}/edit
+                            $action = ($method === 'POST') ? 'update' : 'editForm';
+                            $params = [$id];
+                        } elseif ($subSubSegment === 'delete' && $method === 'POST') {
+                            // POST /admin/products/{id}/delete
+                            $action = 'delete';
+                            $params = [$id];
+                        } else {
+                            self::error404();
+                            return;
+                        }
+                    } else {
+                        self::error404();
+                        return;
+                    }
+                } elseif ($segment === 'categories') {
+                    $controllerName = 'AdminCategoryController';
+                    $subSegment = $urlParts[2] ?? '';
+
+                    if ($subSegment === '' || $subSegment === null) {
+                        // GET /admin/categories -> index
+                        $action = 'index';
+                        $params = [];
+                    } elseif ($subSegment === 'create' && $method === 'POST') {
+                        // POST /admin/categories/create
+                        $action = 'create';
+                        $params = [];
+                    } elseif ($subSegment !== '' && ctype_digit((string)$subSegment)) {
+                        $id = (int)$subSegment;
+                        $subSubSegment = $urlParts[3] ?? '';
+
+                        if ($subSubSegment === 'edit' && $method === 'POST') {
+                            // POST /admin/categories/{id}/edit
+                            $action = 'update';
+                            $params = [$id];
+                        } elseif ($subSubSegment === 'delete' && $method === 'POST') {
+                            // POST /admin/categories/{id}/delete
+                            $action = 'delete';
+                            $params = [$id];
+                        } else {
+                            self::error404();
+                            return;
+                        }
+                    } else {
+                        self::error404();
+                        return;
+                    }
+                } elseif ($segment === 'orders') {
+                    $controllerName = 'AdminOrderController';
+                    $subSegment = $urlParts[2] ?? '';
+
+                    if ($subSegment === '' || $subSegment === null) {
+                        $action = 'index';
+                        $params = [];
+                    } elseif ($subSegment !== '' && ctype_digit((string)$subSegment)) {
+                        $id = (int)$subSegment;
+                        $subSubSegment = $urlParts[3] ?? '';
+
+                        if ($subSubSegment === '' || $subSubSegment === null) {
+                            $action = 'show';
+                            $params = [$id];
+                        } elseif ($subSubSegment === 'status' && $method === 'POST') {
+                            $action = 'updateStatus';
+                            $params = [$id];
+                        } else {
+                            self::error404();
+                            return;
+                        }
+                    } else {
+                        self::error404();
+                        return;
+                    }
+                } elseif ($segment === 'customers') {
+                    $controllerName = 'AdminCustomerController';
+                    $subSegment = $urlParts[2] ?? '';
+
+                    if ($subSegment === '' || $subSegment === null) {
+                        $action = 'index';
+                        $params = [];
+                    } elseif ($subSegment !== '' && ctype_digit((string)$subSegment)) {
+                        $id = (int)$subSegment;
+                        $subSubSegment = $urlParts[3] ?? '';
+
+                        if ($subSubSegment === '' || $subSubSegment === null) {
+                            $action = 'show';
+                            $params = [$id];
+                        } elseif ($subSubSegment === 'ban' && $method === 'POST') {
+                            $action = 'toggleBan';
+                            $params = [$id];
+                        } else {
+                            self::error404();
+                            return;
+                        }
+                    } else {
+                        self::error404();
+                        return;
+                    }
+                } elseif ($segment === 'consultations') {
+                    $controllerName = 'AdminConsultationController';
+                    $subSegment = $urlParts[2] ?? '';
+
+                    if ($subSegment === '' || $subSegment === null) {
+                        $action = 'index';
+                        $params = [];
+                    } elseif ($subSegment !== '' && ctype_digit((string)$subSegment)) {
+                        $id = (int)$subSegment;
+                        $subSubSegment = $urlParts[3] ?? '';
+
+                        if ($subSubSegment === '' || $subSubSegment === null) {
+                            $action = 'show';
+                            $params = [$id];
+                        } elseif ($subSubSegment === 'reply' && $method === 'POST') {
+                            $action = 'reply';
+                            $params = [$id];
+                        } else {
+                            self::error404();
+                            return;
+                        }
+                    } else {
+                        self::error404();
+                        return;
+                    }
+                } else {
+                    self::error404();
+                    return;
+                }
             } else {
-                // Controller
-                $controllerName = ucfirst($urlParts[0]) . 'Controller';
-                unset($urlParts[0]);
-
-                // Action
-                $action = isset($urlParts[1]) ? $urlParts[1] : 'index';
-                unset($urlParts[1]);
-
-                // Params
-                $params = array_values($urlParts);
+                // Route không khớp bất kỳ nhóm nào
+                self::error404();
+                return;
             }
         }
 
-        // Kiểm tra controller tồn tại
+        // Gọi controller và action (áp dụng cho mọi route, kể cả trang chủ)
         if (class_exists($controllerName)) {
             $controller = new $controllerName();
-            
-            // Kiểm tra method tồn tại
+
             if (method_exists($controller, $action)) {
                 call_user_func_array([$controller, $action], $params);
             } else {
@@ -145,7 +296,8 @@ class Router {
         }
     }
 
-    private static function error404() {
+    private static function error404()
+    {
         http_response_code(404);
         echo "<h1>404 - Trang không tìm thấy</h1>";
         exit;

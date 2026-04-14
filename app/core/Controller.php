@@ -90,4 +90,22 @@ abstract class Controller {
     protected function getQuery(string $key, mixed $default = null): mixed {
         return $_GET[$key] ?? $default;
     }
+
+    /**
+     * Kiểm tra request có phải AJAX không
+     */
+    protected function isAjaxRequest(): bool {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+    }
+
+    /**
+     * Trả về response JSON
+     */
+    protected function jsonResponse(array $data, int $statusCode = 200): void {
+        http_response_code($statusCode);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
 }

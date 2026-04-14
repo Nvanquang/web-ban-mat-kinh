@@ -11,7 +11,7 @@ class ProductModel extends Model {
     public function findById(int $id): array|false {
         try {
             $stmt = $this->db->prepare("
-                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description
+                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description, created_at
                 FROM {$this->table}
                 WHERE id = ? AND status = 1
                 LIMIT 1
@@ -20,6 +20,26 @@ class ProductModel extends Model {
             return $stmt->fetch();
         } catch (PDOException $e) {
             error_log('ProductModel::findById error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Tìm sản phẩm theo ID (dùng cho Admin - có thể xem tất cả sản phẩm)
+     * Trả về false nếu không tồn tại
+     */
+    public function findByIdAdmin(int $id): array|false {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT id, product_name, price, image_url, stock_quantity, status, category_id, old_price, description, created_at
+                FROM {$this->table}
+                WHERE id = ?
+                LIMIT 1
+            ");
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log('ProductModel::findByIdAdmin error: ' . $e->getMessage());
             return false;
         }
     }
@@ -207,6 +227,226 @@ class ProductModel extends Model {
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             error_log('ProductModel::getRelated error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Admin: Lấy danh sách sản phẩm với filter và pagination
+     */
+    public function getAdminList(array $filters = [], int $page = 1, int $perPage = 10): array {
+        try {
+            $page = max(1, $page);
+            $perPage = max(1, $perPage);
+            $offset = ($page - 1) * $perPage;
+
+            $where = [];
+            $params = [];
+
+            // Search keyword
+            $keyword = trim($filters['keyword'] ?? '');
+            if ($keyword !== '') {
+                $where[] = '(p.product_name LIKE ? OR p.description LIKE ?)';
+                $kw = '%' . $keyword . '%';
+                $params[] = $kw;
+                $params[] = $kw;
+            }
+
+            // Category filter
+            $categoryId = (int)($filters['category_id'] ?? 0);
+            if ($categoryId > 0) {
+                $where[] = 'p.category_id = ?';
+                $params[] = $categoryId;
+            }
+
+            // Status filter
+            $status = $filters['status'] ?? '';
+            if ($status !== '') {
+                $where[] = 'p.status = ?';
+                $params[] = (int)$status;
+            }
+
+            $whereSql = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+
+            // Count total
+            $countStmt = $this->db->prepare("
+                SELECT COUNT(*)
+                FROM {$this->table} p
+                LEFT JOIN glasses_categories gc ON p.category_id = gc.id
+                {$whereSql}
+            ");
+            $countStmt->execute($params);
+            $total = (int)$countStmt->fetchColumn();
+
+            // Get items
+            $stmt = $this->db->prepare("
+                SELECT
+                    p.id, p.product_name, p.price, p.old_price, p.stock_quantity,
+                    p.image_url, p.status, p.created_at, p.view_count,
+                    gc.category_name
+                FROM {$this->table} p
+                LEFT JOIN glasses_categories gc ON p.category_id = gc.id
+                {$whereSql}
+                ORDER BY p.created_at DESC
+                LIMIT ? OFFSET ?
+            ");
+            $dataParams = array_merge($params, [$perPage, $offset]);
+            $stmt->execute($dataParams);
+
+            $totalPages = (int)ceil($total / $perPage);
+
+            return [
+                'items'        => $stmt->fetchAll(),
+                'total'        => $total,
+                'per_page'     => $perPage,
+                'current_page' => $page,
+                'total_pages'  => max(1, $totalPages),
+                'has_prev'     => $page > 1,
+                'has_next'     => $page < $totalPages,
+            ];
+        } catch (PDOException $e) {
+            error_log('ProductModel::getAdminList error: ' . $e->getMessage());
+            return [
+                'items'        => [],
+                'total'        => 0,
+                'per_page'     => $perPage,
+                'current_page' => $page,
+                'total_pages'  => 1,
+                'has_prev'     => false,
+                'has_next'     => false,
+            ];
+        }
+    }
+
+    /**
+     * Admin: Tạo sản phẩm mới
+     */
+    public function create(array $data): int|false {
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO {$this->table}
+                    (category_id, product_name, price, old_price, stock_quantity,
+                     description, image_url, status)
+                VALUES
+                    (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $result = $stmt->execute([
+                (int)$data['category_id'],
+                trim($data['product_name']),
+                (float)$data['price'],
+                $data['old_price'] ? (float)$data['old_price'] : null,
+                (int)$data['stock_quantity'],
+                trim($data['description'] ?? ''),
+                $data['image_url'] ?? null,
+                (int)($data['status'] ?? 1),
+            ]);
+            return $result ? (int)$this->db->lastInsertId() : false;
+        } catch (PDOException $e) {
+            error_log('ProductModel::create error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Admin: Cập nhật sản phẩm
+     */
+    public function update(int $id, array $data): bool {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE {$this->table} SET
+                    category_id = ?,
+                    product_name = ?,
+                    price = ?,
+                    old_price = ?,
+                    stock_quantity = ?,
+                    description = ?,
+                    image_url = ?,
+                    status = ?
+                WHERE id = ?
+            ");
+            return $stmt->execute([
+                (int)$data['category_id'],
+                trim($data['product_name']),
+                (float)$data['price'],
+                $data['old_price'] ? (float)$data['old_price'] : null,
+                (int)$data['stock_quantity'],
+                trim($data['description'] ?? ''),
+                $data['image_url'] ?? null,
+                (int)($data['status'] ?? 1),
+                $id,
+            ]);
+        } catch (PDOException $e) {
+            error_log('ProductModel::update error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Admin: Soft delete sản phẩm (set status = 0)
+     */
+    public function softDelete(int $id): bool {
+        try {
+            $stmt = $this->db->prepare("UPDATE {$this->table} SET status = 0 WHERE id = ?");
+            return $stmt->execute([$id]);
+        } catch (PDOException $e) {
+            error_log('ProductModel::softDelete error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Admin: Kiểm tra sản phẩm có trong đơn hàng nào chưa
+     */
+    public function isUsedInOrders(int $id): bool {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) FROM order_details WHERE product_id = ?
+            ");
+            $stmt->execute([$id]);
+            return (int)$stmt->fetchColumn() > 0;
+        } catch (PDOException $e) {
+            error_log('ProductModel::isUsedInOrders error: ' . $e->getMessage());
+            return true; // Assume it's used if error
+        }
+    }
+
+    /**
+     * Admin: Đếm số sản phẩm đang bán
+     */
+    public function countSelling(): int {
+        try {
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE status = 1");
+            $stmt->execute();
+            return (int)$stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log('ProductModel::countSelling error: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Admin: Lấy top sản phẩm bán chạy
+     */
+    public function getTopSellingProducts(int $limit = 5): array {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT
+                    p.id,
+                    p.product_name,
+                    p.image_url,
+                    SUM(od.quantity) AS total_sold
+                FROM {$this->table} p
+                JOIN order_details od ON p.id = od.product_id
+                JOIN orders o ON od.order_id = o.id
+                WHERE o.status IN ('completed', 'shipped') AND p.status = 1
+                GROUP BY p.id, p.product_name, p.image_url
+                ORDER BY total_sold DESC
+                LIMIT ?
+            ");
+            $stmt->execute([$limit]);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            error_log('ProductModel::getTopSellingProducts error: ' . $e->getMessage());
             return [];
         }
     }
