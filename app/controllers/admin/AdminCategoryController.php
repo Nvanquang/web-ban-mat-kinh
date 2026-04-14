@@ -66,6 +66,24 @@ class AdminCategoryController extends Controller {
         $this->redirect('/admin/categories');
     }
 
+    public function editForm(int $id): void {
+        $categoryModel = new GlassesCategoryModel();
+        $category = $categoryModel->findById($id);
+        
+        if (!$category) {
+            Session::flash('error', 'Không tìm thấy danh mục.');
+            $this->redirect('/admin/categories');
+            return;
+        }
+
+        $this->render('admin/categories/edit', [
+            'title' => 'Edit Category',
+            'currentPage' => 'categories',
+            'category' => $category,
+            'oldInput' => Session::getOldInput() ?: $category
+        ], 'admin');
+    }
+
     /**
      * POST /admin/categories/{id}/edit - Cập nhật category
      */
@@ -77,10 +95,10 @@ class AdminCategoryController extends Controller {
             die('Invalid CSRF token.');
         }
 
-        // Sanitize input
         $data = [
             'category_name' => trim($_POST['category_name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
+            'status' => isset($_POST['status']) ? (int)$_POST['status'] : 1
         ];
 
         // Validate
@@ -88,7 +106,7 @@ class AdminCategoryController extends Controller {
         if ($errors) {
             Session::flash('error', implode('<br>', $errors));
             Session::setOldInput($data);
-            $this->redirect('/admin/categories');
+            $this->redirect("/admin/categories/{$id}/edit");
         }
 
         // Check if name already exists (excluding current)
@@ -96,14 +114,14 @@ class AdminCategoryController extends Controller {
         if ($categoryModel->nameExists($data['category_name'], $id)) {
             Session::flash('error', 'Tên danh mục đã tồn tại.');
             Session::setOldInput($data);
-            $this->redirect('/admin/categories');
+            $this->redirect("/admin/categories/{$id}/edit");
         }
 
         // Update
         if (!$categoryModel->update($id, $data)) {
             Session::flash('error', 'Không thể cập nhật danh mục.');
             Session::setOldInput($data);
-            $this->redirect('/admin/categories');
+            $this->redirect("/admin/categories/{$id}/edit");
         }
 
         Session::flash('success', 'Danh mục đã được cập nhật thành công!');

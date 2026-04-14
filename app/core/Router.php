@@ -180,9 +180,9 @@ class Router
                         $id = (int)$subSegment;
                         $subSubSegment = $urlParts[3] ?? '';
 
-                        if ($subSubSegment === 'edit' && $method === 'POST') {
-                            // POST /admin/categories/{id}/edit
-                            $action = 'update';
+                        if ($subSubSegment === 'edit') {
+                            // GET/POST /admin/categories/{id}/edit
+                            $action = ($method === 'POST') ? 'update' : 'editForm';
                             $params = [$id];
                         } elseif ($subSubSegment === 'delete' && $method === 'POST') {
                             // POST /admin/categories/{id}/delete

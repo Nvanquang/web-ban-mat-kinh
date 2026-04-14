@@ -74,16 +74,17 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-success">Hiển thị</span>
+                                    <?php if ($category['status']): ?>
+                                        <span class="badge bg-success">Hiển thị</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Đã ẩn</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <!-- Inline Edit Form -->
-                                        <button type="button" class="btn btn-sm btn-outline-primary"
-                                                onclick="editCategory(<?= $category['id'] ?>, '<?= htmlspecialchars(addslashes($category['category_name'])) ?>', '<?= htmlspecialchars(addslashes($category['description'] ?? '')) ?>')"
-                                                title="Sửa">
+                                        <a href="<?= BASE_URL ?>/admin/categories/<?= $category['id'] ?>/edit" class="btn btn-sm btn-outline-primary" title="Sửa">
                                             <i class="bi bi-pencil"></i>
-                                        </button>
+                                        </a>
 
                                         <?php if ($category['product_count'] == 0): ?>
                                             <form method="POST" action="<?= BASE_URL ?>/admin/categories/<?= $category['id'] ?>/delete"
@@ -109,45 +110,4 @@
         <?php endif; ?>
     </div>
 </div>
-
-<!-- Edit Modal -->
-<div class="modal fade" id="editCategoryModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Chỉnh sửa danh mục</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="" id="editCategoryForm">
-                <input type="hidden" name="csrf_token" value="<?= Session::getCsrfToken() ?>">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="edit_category_name" class="form-label">
-                            Tên danh mục <span class="text-danger">*</span>
-                        </label>
-                        <input type="text" class="form-control" id="edit_category_name" name="category_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_description" class="form-label">Mô tả</label>
-                        <input type="text" class="form-control" id="edit_description" name="description">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Cập nhật danh mục</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-function editCategory(id, name, description) {
-    document.getElementById('edit_category_name').value = name;
-    document.getElementById('edit_description').value = description;
-    document.getElementById('editCategoryForm').action = '<?= BASE_URL ?>/admin/categories/' + id + '/edit';
-
-    const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
-    modal.show();
-}
-</script>
+

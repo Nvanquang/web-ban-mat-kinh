@@ -65,6 +65,17 @@ class GlassesCategoryModel extends Model {
         }
     }
 
+    public function findById(int $id): array|false {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = ? LIMIT 1");
+            $stmt->execute([$id]);
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log('GlassesCategoryModel::findById error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Admin: Cập nhật category
      */
@@ -73,12 +84,14 @@ class GlassesCategoryModel extends Model {
             $stmt = $this->db->prepare("
                 UPDATE {$this->table} SET
                     category_name = ?,
-                    description = ?
+                    description = ?,
+                    status = ?
                 WHERE id = ?
             ");
             return $stmt->execute([
                 trim($data['category_name']),
                 trim($data['description'] ?? ''),
+                (int)($data['status'] ?? 0),
                 $id,
             ]);
         } catch (PDOException $e) {
